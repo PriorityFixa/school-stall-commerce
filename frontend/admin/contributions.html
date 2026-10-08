@@ -290,6 +290,7 @@
             <th>Value</th>
             <th>Status</th>
             <th>Date</th>
+            <th>Action</th>
           </tr>
 
         </thead>
@@ -425,7 +426,7 @@ async function loadContributions() {
       table.innerHTML = `
         <tr>
           <td
-            colspan="6"
+            colspan="7"
             class="empty">
 
             No contributions recorded yet.
@@ -482,9 +483,40 @@ async function loadContributions() {
             </span>
           </td>
 
-          <td>
-            ${date}
-          </td>
+         <td>
+  ${date}
+</td>
+
+<td>
+  ${
+    contribution.status === "pending"
+      ? `
+        <button
+          onclick="approveContribution('${contribution.id}')"
+          style="
+            width:auto;
+            padding:8px 12px;
+            margin-right:5px;
+            background:#176b36;
+          "
+        >
+          Approve
+        </button>
+
+        <button
+          onclick="rejectContribution('${contribution.id}')"
+          style="
+            width:auto;
+            padding:8px 12px;
+            background:#9a1c1c;
+          "
+        >
+          Reject
+        </button>
+      `
+      : "-"
+  }
+</td>
 
         `;
 
@@ -660,7 +692,130 @@ function escapeHtml(value) {
 /* ==========================================================
    START
 ========================================================== */
+/* ==========================================================
+   APPROVE CONTRIBUTION
+========================================================== */
 
+async function approveContribution(
+  contributionId
+) {
+
+  if (
+    !confirm(
+      "Approve this contribution?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/api/contributions/${contributionId}/approve`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            approvedBy: "Admin"
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error ||
+        "Approval failed"
+      );
+    }
+
+    showMessage(
+      "Contribution approved successfully."
+    );
+
+    await loadContributions();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      error.message
+    );
+
+  }
+}
+
+
+/* ==========================================================
+   REJECT CONTRIBUTION
+========================================================== */
+
+async function rejectContribution(
+  contributionId
+) {
+
+  if (
+    !confirm(
+      "Reject this contribution?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/api/contributions/${contributionId}/reject`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            rejectedBy: "Admin"
+          })
+        }
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error ||
+        "Rejection failed"
+      );
+    }
+
+    showMessage(
+      "Contribution rejected."
+    );
+
+    await loadContributions();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      error.message
+    );
+
+  }
+}
 loadStudents();
 
 loadContributions();
