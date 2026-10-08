@@ -1,6 +1,22 @@
 /**
+ * ============================================================
  * SCHOOL STALL COMMERCE API
- * Build 1 — Foundation
+ * Build 2 — Students & Contributions
+ * ============================================================
+ *
+ * KV:
+ * - STALL_DATA
+ * - STALL_SEQUENCES
+ *
+ * Supports:
+ * - Health check
+ * - Students
+ * - Contributions
+ * - Ownership calculation
+ * - Products
+ * - Orders
+ * - Expenses
+ * - Dashboard
  */
 
 const JSON_HEADERS = {
@@ -24,6 +40,20 @@ function cors() {
   });
 }
 
+function createId(prefix) {
+  return `${prefix}-${Date.now()}-${Math.random()
+    .toString(36)
+    .substring(2, 8)}`;
+}
+
+async function readJson(request) {
+  try {
+    return await request.json();
+  } catch {
+    return null;
+  }
+}
+
 export default {
   async fetch(request, env) {
     try {
@@ -33,33 +63,37 @@ export default {
 
       const url = new URL(request.url);
       const path = url.pathname;
+      const method = request.method;
 
-      /*
-       * HEALTH CHECK
-       */
-      if (path === "/api/health" && request.method === "GET") {
+      /* ======================================================
+         HEALTH
+      ====================================================== */
+
+      if (path === "/api/health" && method === "GET") {
         return json({
           success: true,
           service: "School Stall Commerce API",
           status: "online",
-          version: "1.0.0",
+          version: "2.0.0",
           time: new Date().toISOString(),
         });
       }
 
-      /*
-       * ROOT
-       */
-      if (path === "/" && request.method === "GET") {
+      /* ======================================================
+         ROOT
+      ====================================================== */
+
+      if (path === "/" && method === "GET") {
         return json({
           success: true,
           service: "School Stall Commerce API",
-          message: "API is running.",
+          version: "2.0.0",
           endpoints: [
             "/api/health",
-            "/api/products",
             "/api/students",
+            "/api/students/ownership",
             "/api/contributions",
+            "/api/products",
             "/api/orders",
             "/api/expenses",
             "/api/dashboard",
@@ -67,45 +101,66 @@ export default {
         });
       }
 
-      /*
-       * PRODUCTS
-       */
-      if (path === "/api/products" && request.method === "GET") {
-        return getProducts(env);
-      }
+      /* ======================================================
+         STUDENTS
+      ====================================================== */
 
-      /*
-       * STUDENTS
-       */
-      if (path === "/api/students" && request.method === "GET") {
+      if (path === "/api/students" && method === "GET") {
         return getStudents(env);
       }
 
-      /*
-       * CONTRIBUTIONS
-       */
-      if (path === "/api/contributions" && request.method === "GET") {
+      if (path === "/api/students" && method === "POST") {
+        return createStudent(request, env);
+      }
+
+      if (
+        path === "/api/students/ownership" &&
+        method === "GET"
+      ) {
+        return getOwnership(env);
+      }
+
+      /* ======================================================
+         CONTRIBUTIONS
+      ====================================================== */
+
+      if (path === "/api/contributions" && method === "GET") {
         return getContributions(env);
       }
 
-      /*
-       * ORDERS
-       */
-      if (path === "/api/orders" && request.method === "GET") {
+      if (path === "/api/contributions" && method === "POST") {
+        return createContribution(request, env);
+      }
+
+      /* ======================================================
+         PRODUCTS
+      ====================================================== */
+
+      if (path === "/api/products" && method === "GET") {
+        return getProducts(env);
+      }
+
+      /* ======================================================
+         ORDERS
+      ====================================================== */
+
+      if (path === "/api/orders" && method === "GET") {
         return getOrders(env);
       }
 
-      /*
-       * EXPENSES
-       */
-      if (path === "/api/expenses" && request.method === "GET") {
+      /* ======================================================
+         EXPENSES
+      ====================================================== */
+
+      if (path === "/api/expenses" && method === "GET") {
         return getExpenses(env);
       }
 
-      /*
-       * DASHBOARD
-       */
-      if (path === "/api/dashboard" && request.method === "GET") {
+      /* ======================================================
+         DASHBOARD
+      ====================================================== */
+
+      if (path === "/api/dashboard" && method === "GET") {
         return getDashboard(env);
       }
 
@@ -131,51 +186,70 @@ export default {
 };
 
 
-/* =========================================================
-   PRODUCTS
-========================================================= */
+/* ============================================================
+   STUDENTS
+============================================================ */
 
-async function getProducts(env) {
-  const list = await env.STALL_DATA.list({
-    prefix: "PRODUCT:",
-  });
+async function createStudent(request, env) {
+  const body = await readJson(request);
 
-  const products = [];
-
-  for (const key of list.keys) {
-    const product = await env.STALL_DATA.get(key.name, "json");
-
-    if (product) {
-      products.push(product);
-    }
+  if (!body) {
+    return json(
+      {
+        success: false,
+        error: "Invalid JSON body",
+      },
+      400
+    );
   }
 
-  return json({
-    success: true,
-    products,
-    count: products.length,
-  });
+  const name = String(body.name || "").trim();
+
+  if (!name) {
+    return json(
+      {
+        success: false,
+        error: "Student name is required",
+      },
+      400
+    );
+  }
+
+  const studentId = createId("STU");
+
+  const student = {
+    id: studentId,
+    name,
+    role: String(body.role || "Member").trim(),
+    active: body.active !== false,
+    createdAt: new Date().toISOString(),
+  };
+
+  await env.STALL_DATA.put(
+    `STUDENT:${studentId}`,
+    JSON.stringify(student)
+  );
+
+  return json(
+    {
+      success: true,
+      message: "Student created successfully",
+      student,
+    },
+    201
+  );
 }
 
 
-/* =========================================================
-   STUDENTS
-========================================================= */
-
 async function getStudents(env) {
-  const list = await env.STALL_DATA.list({
-    prefix: "STUDENT:",
-  });
+  const students = await getDataByPrefix(
+    env,
+    "STUDENT:"
+  );
 
-  const students = [];
-
-  for (const key of list.keys) {
-    const student = await env.STALL_DATA.get(key.name, "json");
-
-    if (student) {
-      students.push(student);
-    }
-  }
+  students.sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   return json({
     success: true,
@@ -185,27 +259,139 @@ async function getStudents(env) {
 }
 
 
-/* =========================================================
+/* ============================================================
    CONTRIBUTIONS
-========================================================= */
+============================================================ */
+
+async function createContribution(request, env) {
+  const body = await readJson(request);
+
+  if (!body) {
+    return json(
+      {
+        success: false,
+        error: "Invalid JSON body",
+      },
+      400
+    );
+  }
+
+  const studentId = String(
+    body.studentId || ""
+  ).trim();
+
+  const type = String(
+    body.type || ""
+  ).trim().toLowerCase();
+
+  const description = String(
+    body.description || ""
+  ).trim();
+
+  const value = Number(body.value);
+
+  if (!studentId) {
+    return json(
+      {
+        success: false,
+        error: "studentId is required",
+      },
+      400
+    );
+  }
+
+  if (
+    !["cash", "goods", "labour", "service"].includes(type)
+  ) {
+    return json(
+      {
+        success: false,
+        error:
+          "Contribution type must be cash, goods, labour, or service",
+      },
+      400
+    );
+  }
+
+  if (!Number.isFinite(value) || value <= 0) {
+    return json(
+      {
+        success: false,
+        error: "Contribution value must be greater than zero",
+      },
+      400
+    );
+  }
+
+  const student = await env.STALL_DATA.get(
+    `STUDENT:${studentId}`,
+    "json"
+  );
+
+  if (!student) {
+    return json(
+      {
+        success: false,
+        error: "Student not found",
+      },
+      404
+    );
+  }
+
+  const contributionId = createId("CON");
+
+  /*
+   * Contributions require approval.
+   * They do NOT affect ownership until approved.
+   */
+
+  const contribution = {
+    id: contributionId,
+    studentId,
+    studentName: student.name,
+
+    type,
+
+    description,
+
+    agreedValue: value,
+
+    status: "pending",
+
+    submittedAt: new Date().toISOString(),
+
+    approvedAt: null,
+    approvedBy: null,
+  };
+
+  await env.STALL_DATA.put(
+    `CONTRIBUTION:${contributionId}`,
+    JSON.stringify(contribution)
+  );
+
+  return json(
+    {
+      success: true,
+      message:
+        "Contribution submitted for approval",
+      contribution,
+    },
+    201
+  );
+}
+
 
 async function getContributions(env) {
-  const list = await env.STALL_DATA.list({
-    prefix: "CONTRIBUTION:",
-  });
+  const contributions = await getDataByPrefix(
+    env,
+    "CONTRIBUTION:"
+  );
 
-  const contributions = [];
-
-  for (const key of list.keys) {
-    const contribution = await env.STALL_DATA.get(
-      key.name,
-      "json"
-    );
-
-    if (contribution) {
-      contributions.push(contribution);
-    }
-  }
+  contributions.sort(
+    (a, b) =>
+      new Date(b.submittedAt) -
+      new Date(a.submittedAt)
+  );
 
   return json({
     success: true,
@@ -215,27 +401,115 @@ async function getContributions(env) {
 }
 
 
-/* =========================================================
-   ORDERS
-========================================================= */
+/* ============================================================
+   OWNERSHIP
+============================================================ */
 
-async function getOrders(env) {
-  const list = await env.STALL_DATA.list({
-    prefix: "ORDER:",
+async function getOwnership(env) {
+  const students = await getDataByPrefix(
+    env,
+    "STUDENT:"
+  );
+
+  const contributions = await getDataByPrefix(
+    env,
+    "CONTRIBUTION:"
+  );
+
+  const approved = contributions.filter(
+    contribution =>
+      contribution.status === "approved"
+  );
+
+  const totals = {};
+
+  for (const student of students) {
+    totals[student.id] = 0;
+  }
+
+  for (const contribution of approved) {
+    if (!totals[contribution.studentId]) {
+      totals[contribution.studentId] = 0;
+    }
+
+    totals[contribution.studentId] += Number(
+      contribution.agreedValue || 0
+    );
+  }
+
+  const totalCapital = Object.values(
+    totals
+  ).reduce(
+    (sum, value) => sum + value,
+    0
+  );
+
+  const ownership = students.map(student => {
+    const contributionValue =
+      totals[student.id] || 0;
+
+    const percentage =
+      totalCapital > 0
+        ? (contributionValue /
+            totalCapital) *
+          100
+        : 0;
+
+    return {
+      studentId: student.id,
+      studentName: student.name,
+
+      contributionValue,
+
+      ownershipPercentage:
+        Number(percentage.toFixed(2)),
+    };
   });
 
-  const orders = [];
+  ownership.sort(
+    (a, b) =>
+      b.contributionValue -
+      a.contributionValue
+  );
 
-  for (const key of list.keys()) {
-    const order = await env.STALL_DATA.get(
-      key.name,
-      "json"
-    );
+  return json({
+    success: true,
 
-    if (order) {
-      orders.push(order);
-    }
-  }
+    totalApprovedContribution:
+      totalCapital,
+
+    ownership,
+  });
+}
+
+
+/* ============================================================
+   PRODUCTS
+============================================================ */
+
+async function getProducts(env) {
+  const products = await getDataByPrefix(
+    env,
+    "PRODUCT:"
+  );
+
+  return json({
+    success: true,
+    products,
+    count: products.length,
+  });
+}
+
+
+/* ============================================================
+   ORDERS
+============================================================ */
+
+async function getOrders(env) {
+  const orders = await getDataByPrefix(
+    env,
+    "ORDER:"
+  );
 
   return json({
     success: true,
@@ -245,27 +519,15 @@ async function getOrders(env) {
 }
 
 
-/* =========================================================
+/* ============================================================
    EXPENSES
-========================================================= */
+============================================================ */
 
 async function getExpenses(env) {
-  const list = await env.STALL_DATA.list({
-    prefix: "EXPENSE:",
-  });
-
-  const expenses = [];
-
-  for (const key of list.keys()) {
-    const expense = await env.STALL_DATA.get(
-      key.name,
-      "json"
-    );
-
-    if (expense) {
-      expenses.push(expense);
-    }
-  }
+  const expenses = await getDataByPrefix(
+    env,
+    "EXPENSE:"
+  );
 
   return json({
     success: true,
@@ -275,9 +537,9 @@ async function getExpenses(env) {
 }
 
 
-/* =========================================================
+/* ============================================================
    DASHBOARD
-========================================================= */
+============================================================ */
 
 async function getDashboard(env) {
   const [
@@ -294,31 +556,58 @@ async function getDashboard(env) {
     getDataByPrefix(env, "EXPENSE:"),
   ]);
 
-  const totalContributions = contributions.reduce(
-    (sum, item) => sum + Number(item.totalValue || 0),
-    0
-  );
+  const approvedContributions =
+    contributions.filter(
+      item => item.status === "approved"
+    );
 
-  const totalSales = orders.reduce(
-    (sum, item) => sum + Number(item.total || 0),
-    0
-  );
+  const totalContributions =
+    approvedContributions.reduce(
+      (sum, item) =>
+        sum +
+        Number(item.agreedValue || 0),
+      0
+    );
 
-  const totalExpenses = expenses.reduce(
-    (sum, item) => sum + Number(item.amount || 0),
-    0
-  );
+  const pendingContributions =
+    contributions.filter(
+      item => item.status === "pending"
+    );
+
+  const totalSales =
+    orders.reduce(
+      (sum, item) =>
+        sum + Number(item.total || 0),
+      0
+    );
+
+  const totalExpenses =
+    expenses.reduce(
+      (sum, item) =>
+        sum + Number(item.amount || 0),
+      0
+    );
 
   return json({
     success: true,
 
     dashboard: {
       students: students.length,
+
       products: products.length,
+
       orders: orders.length,
 
+      approvedContributions:
+        approvedContributions.length,
+
+      pendingContributions:
+        pendingContributions.length,
+
       totalContributions,
+
       totalSales,
+
       totalExpenses,
 
       netPosition:
@@ -329,22 +618,27 @@ async function getDashboard(env) {
 }
 
 
-/* =========================================================
+/* ============================================================
    GENERIC KV READER
-========================================================= */
+============================================================ */
 
-async function getDataByPrefix(env, prefix) {
-  const list = await env.STALL_DATA.list({
-    prefix,
-  });
+async function getDataByPrefix(
+  env,
+  prefix
+) {
+  const list =
+    await env.STALL_DATA.list({
+      prefix,
+    });
 
   const records = [];
 
   for (const key of list.keys) {
-    const record = await env.STALL_DATA.get(
-      key.name,
-      "json"
-    );
+    const record =
+      await env.STALL_DATA.get(
+        key.name,
+        "json"
+      );
 
     if (record) {
       records.push(record);
