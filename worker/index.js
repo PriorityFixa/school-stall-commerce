@@ -131,7 +131,35 @@ export default {
       if (path === "/api/contributions" && method === "POST") {
         return createContribution(request, env);
       }
+if (
+  path.startsWith("/api/contributions/") &&
+  path.endsWith("/approve") &&
+  method === "POST"
+) {
+  const contributionId =
+    path.split("/")[3];
 
+  return approveContribution(
+    contributionId,
+    request,
+    env
+  );
+}
+
+if (
+  path.startsWith("/api/contributions/") &&
+  path.endsWith("/reject") &&
+  method === "POST"
+) {
+  const contributionId =
+    path.split("/")[3];
+
+  return rejectContribution(
+    contributionId,
+    request,
+    env
+  );
+}
       /* ======================================================
          PRODUCTS
       ====================================================== */
