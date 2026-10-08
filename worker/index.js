@@ -19,6 +19,11 @@
  * ============================================================
  */
 
+
+/* ============================================================
+   CORS
+============================================================ */
+
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
@@ -26,39 +31,80 @@ const CORS_HEADERS = {
   "Content-Type": "application/json"
 };
 
+
+/* ============================================================
+   MAIN WORKER
+============================================================ */
+
 export default {
+
   async fetch(request, env) {
+
     const url = new URL(request.url);
+
     const path = url.pathname;
+
     const method = request.method;
 
+
+    /* --------------------------------------------------------
+       CORS PREFLIGHT
+    -------------------------------------------------------- */
+
     if (method === "OPTIONS") {
+
       return new Response(null, {
         status: 204,
         headers: CORS_HEADERS
       });
+
     }
 
+
     try {
+
 
       /* ======================================================
          BASIC
       ====================================================== */
 
-      if (path === "/" && method === "GET") {
+      if (
+        path === "/" &&
+        method === "GET"
+      ) {
+
         return json({
+
           success: true,
-          service: "School Stall Commerce API",
-          status: "online"
+
+          service:
+            "School Stall Commerce API",
+
+          status:
+            "online"
+
         });
+
       }
 
-      if (path === "/api/health" && method === "GET") {
+
+      if (
+        path === "/api/health" &&
+        method === "GET"
+      ) {
+
         return json({
+
           success: true,
-          status: "healthy",
-          service: "school-stall-commerce"
+
+          status:
+            "healthy",
+
+          service:
+            "school-stall-commerce"
+
         });
+
       }
 
 
@@ -66,16 +112,36 @@ export default {
          STUDENTS
       ====================================================== */
 
-      if (path === "/api/students" && method === "GET") {
+      if (
+        path === "/api/students" &&
+        method === "GET"
+      ) {
+
         return getStudents(env);
+
       }
 
-      if (path === "/api/students" && method === "POST") {
-        return createStudent(request, env);
+
+      if (
+        path === "/api/students" &&
+        method === "POST"
+      ) {
+
+        return createStudent(
+          request,
+          env
+        );
+
       }
 
-      if (path === "/api/students/ownership" && method === "GET") {
+
+      if (
+        path === "/api/students/ownership" &&
+        method === "GET"
+      ) {
+
         return getOwnership(env);
+
       }
 
 
@@ -83,40 +149,68 @@ export default {
          CONTRIBUTIONS
       ====================================================== */
 
-      if (path === "/api/contributions" && method === "GET") {
+      if (
+        path === "/api/contributions" &&
+        method === "GET"
+      ) {
+
         return getContributions(env);
+
       }
 
-      if (path === "/api/contributions" && method === "POST") {
-        return createContribution(request, env);
-      }
 
       if (
-        path.startsWith("/api/contributions/") &&
+        path === "/api/contributions" &&
+        method === "POST"
+      ) {
+
+        return createContribution(
+          request,
+          env
+        );
+
+      }
+
+
+      if (
+        path.startsWith(
+          "/api/contributions/"
+        ) &&
         path.endsWith("/approve") &&
         method === "POST"
       ) {
-        const contributionId = path.split("/")[3];
+
+        const contributionId =
+          path.split("/")[3];
+
 
         return approveContribution(
           contributionId,
           request,
           env
         );
+
       }
 
+
       if (
-        path.startsWith("/api/contributions/") &&
+        path.startsWith(
+          "/api/contributions/"
+        ) &&
         path.endsWith("/reject") &&
         method === "POST"
       ) {
-        const contributionId = path.split("/")[3];
+
+        const contributionId =
+          path.split("/")[3];
+
 
         return rejectContribution(
           contributionId,
           request,
           env
         );
+
       }
 
 
@@ -124,25 +218,44 @@ export default {
          PRODUCTS
       ====================================================== */
 
-      if (path === "/api/products" && method === "GET") {
+      if (
+        path === "/api/products" &&
+        method === "GET"
+      ) {
+
         return getProducts(env);
+
       }
 
-      if (path === "/api/products" && method === "POST") {
-        return createProduct(request, env);
+
+      if (
+        path === "/api/products" &&
+        method === "POST"
+      ) {
+
+        return createProduct(
+          request,
+          env
+        );
+
       }
+
 
       if (
         path.startsWith("/api/products/") &&
         method === "PUT"
       ) {
-        const productId = path.split("/")[3];
+
+        const productId =
+          path.split("/")[3];
+
 
         return updateProduct(
           productId,
           request,
           env
         );
+
       }
 
 
@@ -151,17 +264,31 @@ export default {
       ====================================================== */
 
       if (
+        path === "/api/inventory" &&
+        method === "GET"
+      ) {
+
+        return getInventoryHistory(env);
+
+      }
+
+
+      if (
         path.startsWith("/api/inventory/") &&
         path.endsWith("/adjust") &&
         method === "POST"
       ) {
-        const productId = path.split("/")[3];
+
+        const productId =
+          path.split("/")[3];
+
 
         return adjustInventory(
           productId,
           request,
           env
         );
+
       }
 
 
@@ -169,8 +296,26 @@ export default {
          ORDERS
       ====================================================== */
 
-      if (path === "/api/orders" && method === "GET") {
+      if (
+        path === "/api/orders" &&
+        method === "GET"
+      ) {
+
         return getOrders(env);
+
+      }
+
+
+      if (
+        path === "/api/orders" &&
+        method === "POST"
+      ) {
+
+        return createOrder(
+          request,
+          env
+        );
+
       }
 
 
@@ -178,8 +323,13 @@ export default {
          EXPENSES
       ====================================================== */
 
-      if (path === "/api/expenses" && method === "GET") {
+      if (
+        path === "/api/expenses" &&
+        method === "GET"
+      ) {
+
         return getExpenses(env);
+
       }
 
 
@@ -187,57 +337,113 @@ export default {
          DASHBOARD
       ====================================================== */
 
-      if (path === "/api/dashboard" && method === "GET") {
+      if (
+        path === "/api/dashboard" &&
+        method === "GET"
+      ) {
+
         return getDashboard(env);
+
       }
 
 
+      /* ======================================================
+         ROUTE NOT FOUND
+      ====================================================== */
+
       return json(
+
         {
           success: false,
-          error: "Route not found",
+
+          error:
+            "Route not found",
+
           path
+
         },
+
         404
+
       );
+
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Worker error:",
+        error
+      );
+
 
       return json(
+
         {
           success: false,
-          error: error.message || "Internal server error"
+
+          error:
+            error.message ||
+            "Internal server error"
+
         },
+
         500
+
       );
+
     }
+
   }
+
 };
 
 
 /* ============================================================
-   RESPONSE HELPERS
+   RESPONSE HELPER
 ============================================================ */
 
-function json(data, status = 200) {
+function json(
+  data,
+  status = 200
+) {
+
   return new Response(
-    JSON.stringify(data, null, 2),
+
+    JSON.stringify(
+      data,
+      null,
+      2
+    ),
+
     {
       status,
-      headers: CORS_HEADERS
+
+      headers:
+        CORS_HEADERS
+
     }
+
   );
+
 }
 
 
+/* ============================================================
+   REQUEST JSON HELPER
+============================================================ */
+
 async function readJson(request) {
+
   try {
+
     return await request.json();
+
   } catch {
+
     return {};
+
   }
+
 }
 
 
@@ -246,10 +452,16 @@ async function readJson(request) {
 ============================================================ */
 
 function createId(prefix) {
-  return `${prefix}-${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2, 8)
-    .toUpperCase()}`;
+
+  return (
+
+    `${prefix}-${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2, 8)
+      .toUpperCase()}`
+
+  );
+
 }
 
 
@@ -257,27 +469,42 @@ function createId(prefix) {
    KV PREFIX READER
 ============================================================ */
 
-async function getDataByPrefix(env, prefix) {
+async function getDataByPrefix(
+  env,
+  prefix
+) {
 
-  const result = await env.STALL_DATA.list({
-    prefix
-  });
+  const result =
+    await env.STALL_DATA.list({
+      prefix
+    });
+
 
   const records = [];
 
-  for (const key of result.keys) {
 
-    const value = await env.STALL_DATA.get(
-      key.name,
-      "json"
-    );
+  for (
+    const key of result.keys
+  ) {
+
+    const value =
+      await env.STALL_DATA.get(
+        key.name,
+        "json"
+      );
+
 
     if (value) {
+
       records.push(value);
+
     }
+
   }
 
+
   return records;
+
 }
 
 
@@ -287,58 +514,121 @@ async function getDataByPrefix(env, prefix) {
 
 async function getStudents(env) {
 
-  const students = await getDataByPrefix(
-    env,
-    "STUDENT:"
+  const students =
+    await getDataByPrefix(
+      env,
+      "STUDENT:"
+    );
+
+
+  students.sort(
+    (a, b) =>
+      a.name.localeCompare(
+        b.name
+      )
   );
 
-  students.sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
 
   return json({
+
     success: true,
+
     students,
-    count: students.length
+
+    count:
+      students.length
+
   });
+
 }
 
 
-async function createStudent(request, env) {
+/* ============================================================
+   CREATE STUDENT
+============================================================ */
 
-  const body = await readJson(request);
+async function createStudent(
+  request,
+  env
+) {
 
-  const name = String(body.name || "").trim();
+  const body =
+    await readJson(request);
+
+
+  const name =
+    String(
+      body.name || ""
+    ).trim();
+
+
+  const role =
+    String(
+      body.role || "Member"
+    ).trim();
+
 
   if (!name) {
+
     return json(
+
       {
         success: false,
-        error: "Student name is required"
+
+        error:
+          "Student name is required"
       },
+
       400
+
     );
+
   }
 
-  const id = createId("STU");
+
+  const id =
+    createId("STU");
+
 
   const student = {
+
     id,
+
     name,
-    role: body.role || "Member",
-    status: "active",
-    createdAt: new Date().toISOString()
+
+    role,
+
+    status:
+      "active",
+
+    createdAt:
+      new Date().toISOString()
+
   };
 
+
   await env.STALL_DATA.put(
+
     `STUDENT:${id}`,
+
     JSON.stringify(student)
+
   );
 
-  return json({
-    success: true,
-    student
-  }, 201);
+
+  return json(
+
+    {
+      success: true,
+
+      student
+
+    },
+
+    201
+
+  );
+
 }
 
 
@@ -348,121 +638,240 @@ async function createStudent(request, env) {
 
 async function getContributions(env) {
 
-  const contributions = await getDataByPrefix(
-    env,
-    "CONTRIBUTION:"
-  );
+  const contributions =
+    await getDataByPrefix(
+      env,
+      "CONTRIBUTION:"
+    );
+
 
   contributions.sort(
+
     (a, b) =>
-      new Date(b.submittedAt) -
-      new Date(a.submittedAt)
+      new Date(
+        b.submittedAt
+      ) -
+      new Date(
+        a.submittedAt
+      )
+
   );
 
+
   return json({
+
     success: true,
+
     contributions,
-    count: contributions.length
+
+    count:
+      contributions.length
+
   });
+
 }
 
 
-async function createContribution(request, env) {
+/* ============================================================
+   CREATE CONTRIBUTION
+============================================================ */
 
-  const body = await readJson(request);
+async function createContribution(
+  request,
+  env
+) {
 
-  const studentId = String(
-    body.studentId || ""
-  ).trim();
+  const body =
+    await readJson(request);
 
-  const type = String(
-    body.type || ""
-  ).trim().toLowerCase();
 
-  const description = String(
-    body.description || ""
-  ).trim();
+  const studentId =
+    String(
+      body.studentId || ""
+    ).trim();
 
-  const agreedValue = Number(
-    body.agreedValue
-  );
+
+  const type =
+    String(
+      body.type || ""
+    ).trim()
+    .toLowerCase();
+
+
+  const description =
+    String(
+      body.description || ""
+    ).trim();
+
+
+  const agreedValue =
+    Number(
+      body.agreedValue
+    );
+
 
   if (!studentId) {
+
     return json(
+
       {
         success: false,
-        error: "Student is required"
+
+        error:
+          "Student is required"
+
       },
+
       400
+
     );
+
   }
 
+
   if (
-    !["cash", "goods", "labour", "service"].includes(type)
+    ![
+      "cash",
+      "goods",
+      "labour",
+      "service"
+    ].includes(type)
   ) {
+
     return json(
+
       {
         success: false,
-        error: "Invalid contribution type"
+
+        error:
+          "Invalid contribution type"
+
       },
+
       400
+
     );
+
   }
 
+
   if (
-    !Number.isFinite(agreedValue) ||
+    !Number.isFinite(
+      agreedValue
+    ) ||
     agreedValue <= 0
   ) {
+
     return json(
+
       {
         success: false,
-        error: "Agreed value must be greater than zero"
+
+        error:
+          "Agreed value must be greater than zero"
+
       },
+
       400
+
     );
+
   }
 
-  const student = await env.STALL_DATA.get(
-    `STUDENT:${studentId}`,
-    "json"
-  );
+
+  const student =
+    await env.STALL_DATA.get(
+
+      `STUDENT:${studentId}`,
+
+      "json"
+
+    );
+
 
   if (!student) {
+
     return json(
+
       {
         success: false,
-        error: "Student not found"
+
+        error:
+          "Student not found"
+
       },
+
       404
+
     );
+
   }
 
-  const id = createId("CON");
+
+  const id =
+    createId("CON");
+
 
   const contribution = {
+
     id,
+
     studentId,
-    studentName: student.name,
+
+    studentName:
+      student.name,
+
     type,
+
     description,
+
     agreedValue,
-    status: "pending",
-    submittedAt: new Date().toISOString(),
-    approvedAt: null,
-    approvedBy: null,
-    rejectedAt: null,
-    rejectedBy: null
+
+    status:
+      "pending",
+
+    submittedAt:
+      new Date().toISOString(),
+
+    approvedAt:
+      null,
+
+    approvedBy:
+      null,
+
+    rejectedAt:
+      null,
+
+    rejectedBy:
+      null
+
   };
 
+
   await env.STALL_DATA.put(
+
     `CONTRIBUTION:${id}`,
-    JSON.stringify(contribution)
+
+    JSON.stringify(
+      contribution
+    )
+
   );
 
-  return json({
-    success: true,
-    contribution
-  }, 201);
+
+  return json(
+
+    {
+      success: true,
+
+      contribution
+
+    },
+
+    201
+
+  );
+
 }
 
 
@@ -479,51 +888,91 @@ async function approveContribution(
   const key =
     `CONTRIBUTION:${contributionId}`;
 
+
   const contribution =
     await env.STALL_DATA.get(
       key,
       "json"
     );
 
+
   if (!contribution) {
+
     return json(
+
       {
         success: false,
-        error: "Contribution not found"
+
+        error:
+          "Contribution not found"
+
       },
+
       404
+
     );
+
   }
 
-  if (contribution.status !== "pending") {
+
+  if (
+    contribution.status !==
+    "pending"
+  ) {
+
     return json(
+
       {
         success: false,
+
         error:
           `Contribution is already ${contribution.status}`
+
       },
+
       400
+
     );
+
   }
 
-  const body = await readJson(request);
 
-  contribution.status = "approved";
+  const body =
+    await readJson(request);
+
+
+  contribution.status =
+    "approved";
+
+
   contribution.approvedAt =
     new Date().toISOString();
 
+
   contribution.approvedBy =
-    body.approvedBy || "Admin";
+    body.approvedBy ||
+    "Admin";
+
 
   await env.STALL_DATA.put(
+
     key,
-    JSON.stringify(contribution)
+
+    JSON.stringify(
+      contribution
+    )
+
   );
 
+
   return json({
+
     success: true,
+
     contribution
+
   });
+
 }
 
 
@@ -540,51 +989,91 @@ async function rejectContribution(
   const key =
     `CONTRIBUTION:${contributionId}`;
 
+
   const contribution =
     await env.STALL_DATA.get(
       key,
       "json"
     );
 
+
   if (!contribution) {
+
     return json(
+
       {
         success: false,
-        error: "Contribution not found"
+
+        error:
+          "Contribution not found"
+
       },
+
       404
+
     );
+
   }
 
-  if (contribution.status !== "pending") {
+
+  if (
+    contribution.status !==
+    "pending"
+  ) {
+
     return json(
+
       {
         success: false,
+
         error:
           `Contribution is already ${contribution.status}`
+
       },
+
       400
+
     );
+
   }
 
-  const body = await readJson(request);
 
-  contribution.status = "rejected";
+  const body =
+    await readJson(request);
+
+
+  contribution.status =
+    "rejected";
+
+
   contribution.rejectedAt =
     new Date().toISOString();
 
+
   contribution.rejectedBy =
-    body.rejectedBy || "Admin";
+    body.rejectedBy ||
+    "Admin";
+
 
   await env.STALL_DATA.put(
+
     key,
-    JSON.stringify(contribution)
+
+    JSON.stringify(
+      contribution
+    )
+
   );
 
+
   return json({
+
     success: true,
+
     contribution
+
   });
+
 }
 
 
@@ -600,68 +1089,113 @@ async function getOwnership(env) {
       "CONTRIBUTION:"
     );
 
+
   const approved =
     contributions.filter(
+
       contribution =>
-        contribution.status === "approved"
+        contribution.status ===
+        "approved"
+
     );
+
 
   const totals = {};
 
-  for (const contribution of approved) {
 
-    if (!totals[contribution.studentId]) {
+  for (
+    const contribution
+    of approved
+  ) {
 
-      totals[contribution.studentId] = {
+    if (
+      !totals[
+        contribution.studentId
+      ]
+    ) {
+
+      totals[
+        contribution.studentId
+      ] = {
+
         studentId:
           contribution.studentId,
 
         studentName:
           contribution.studentName,
 
-        contribution: 0
+        contribution:
+          0
+
       };
+
     }
+
 
     totals[
       contribution.studentId
-    ].contribution += Number(
-      contribution.agreedValue
-    );
+    ].contribution +=
+      Number(
+        contribution.agreedValue
+      );
+
   }
+
 
   const totalApprovedContribution =
     Object.values(totals)
       .reduce(
+
         (sum, item) =>
-          sum + item.contribution,
+          sum +
+          item.contribution,
+
         0
+
       );
+
 
   const ownership =
     Object.values(totals)
       .map(item => ({
+
         ...item,
 
         ownershipPercentage:
-          totalApprovedContribution > 0
+
+          totalApprovedContribution >
+          0
+
             ? (
+
                 item.contribution /
                 totalApprovedContribution
+
               ) * 100
+
             : 0
+
       }))
+
       .sort(
+
         (a, b) =>
           b.ownershipPercentage -
           a.ownershipPercentage
+
       );
 
+
   return json({
+
     success: true,
+
     totalApprovedContribution,
+
     ownership
+
   });
+
 }
 
 
@@ -677,15 +1211,28 @@ async function getProducts(env) {
       "PRODUCT:"
     );
 
-  products.sort((a, b) =>
-    a.name.localeCompare(b.name)
+
+  products.sort(
+
+    (a, b) =>
+      a.name.localeCompare(
+        b.name
+      )
+
   );
 
+
   return json({
+
     success: true,
+
     products,
-    count: products.length
+
+    count:
+      products.length
+
   });
+
 }
 
 
@@ -693,90 +1240,167 @@ async function getProducts(env) {
    CREATE PRODUCT
 ============================================================ */
 
-async function createProduct(request, env) {
+async function createProduct(
+  request,
+  env
+) {
 
-  const body = await readJson(request);
+  const body =
+    await readJson(request);
 
-  const name = String(
-    body.name || ""
-  ).trim();
+
+  const name =
+    String(
+      body.name || ""
+    ).trim();
+
 
   const sellingPrice =
-    Number(body.sellingPrice);
+    Number(
+      body.sellingPrice
+    );
+
 
   const costPrice =
-    Number(body.costPrice || 0);
+    Number(
+      body.costPrice || 0
+    );
+
 
   const openingStock =
-    Number(body.openingStock || 0);
+    Number(
+      body.openingStock || 0
+    );
+
 
   const reorderLevel =
-    Number(body.reorderLevel || 0);
+    Number(
+      body.reorderLevel || 0
+    );
+
 
   if (!name) {
+
     return json(
+
       {
         success: false,
-        error: "Product name is required"
+
+        error:
+          "Product name is required"
+
       },
+
       400
+
     );
+
   }
 
+
   if (
-    !Number.isFinite(sellingPrice) ||
+    !Number.isFinite(
+      sellingPrice
+    ) ||
     sellingPrice <= 0
   ) {
+
     return json(
+
       {
         success: false,
+
         error:
           "Selling price must be greater than zero"
+
       },
+
       400
+
     );
+
   }
 
+
   if (
-    !Number.isFinite(costPrice) ||
+    !Number.isFinite(
+      costPrice
+    ) ||
     costPrice < 0
   ) {
+
     return json(
+
       {
         success: false,
-        error: "Invalid cost price"
+
+        error:
+          "Invalid cost price"
+
       },
+
       400
+
     );
+
   }
 
+
   if (
-    !Number.isFinite(openingStock) ||
+    !Number.isFinite(
+      openingStock
+    ) ||
     openingStock < 0
   ) {
+
     return json(
+
       {
         success: false,
-        error: "Invalid opening stock"
+
+        error:
+          "Invalid opening stock"
+
       },
+
       400
+
     );
+
   }
+
 
   if (
-    !Number.isFinite(reorderLevel) ||
+    !Number.isFinite(
+      reorderLevel
+    ) ||
     reorderLevel < 0
   ) {
+
     return json(
+
       {
         success: false,
-        error: "Invalid reorder level"
+
+        error:
+          "Invalid reorder level"
+
       },
+
       400
+
     );
+
   }
 
-  const id = createId("PROD");
+
+  const id =
+    createId("PROD");
+
+
+  const now =
+    new Date().toISOString();
+
 
   const product = {
 
@@ -793,24 +1417,89 @@ async function createProduct(request, env) {
 
     reorderLevel,
 
-    active: true,
+    active:
+      true,
 
     createdAt:
-      new Date().toISOString(),
+      now,
 
     updatedAt:
-      new Date().toISOString()
+      now
+
   };
 
+
   await env.STALL_DATA.put(
+
     `PRODUCT:${id}`,
+
     JSON.stringify(product)
+
   );
 
-  return json({
-    success: true,
-    product
-  }, 201);
+
+  /*
+   * If there is opening stock,
+   * record it in inventory history.
+   */
+
+  if (openingStock > 0) {
+
+    const inventoryRecord = {
+
+      id:
+        createId("INV"),
+
+      productId:
+        id,
+
+      productName:
+        name,
+
+      change:
+        openingStock,
+
+      previousStock:
+        0,
+
+      newStock:
+        openingStock,
+
+      reason:
+        "Opening stock",
+
+      createdAt:
+        now
+
+    };
+
+
+    await env.STALL_DATA.put(
+
+      `INVENTORY:${inventoryRecord.id}`,
+
+      JSON.stringify(
+        inventoryRecord
+      )
+
+    );
+
+  }
+
+
+  return json(
+
+    {
+      success: true,
+
+      product
+
+    },
+
+    201
+
+  );
+
 }
 
 
@@ -827,131 +1516,236 @@ async function updateProduct(
   const key =
     `PRODUCT:${productId}`;
 
+
   const product =
     await env.STALL_DATA.get(
       key,
       "json"
     );
 
+
   if (!product) {
+
     return json(
+
       {
         success: false,
-        error: "Product not found"
+
+        error:
+          "Product not found"
+
       },
+
       404
+
     );
+
   }
 
-  const body = await readJson(request);
 
-  if (body.name !== undefined) {
+  const body =
+    await readJson(request);
+
+
+  if (
+    body.name !== undefined
+  ) {
 
     const name =
-      String(body.name).trim();
+      String(
+        body.name
+      ).trim();
+
 
     if (!name) {
+
       return json(
+
         {
           success: false,
+
           error:
             "Product name cannot be empty"
+
         },
+
         400
+
       );
+
     }
 
-    product.name = name;
+
+    product.name =
+      name;
+
   }
 
-  if (body.sellingPrice !== undefined) {
+
+  if (
+    body.sellingPrice !==
+    undefined
+  ) {
 
     const price =
-      Number(body.sellingPrice);
+      Number(
+        body.sellingPrice
+      );
+
 
     if (
-      !Number.isFinite(price) ||
+      !Number.isFinite(
+        price
+      ) ||
       price <= 0
     ) {
+
       return json(
+
         {
           success: false,
+
           error:
             "Invalid selling price"
+
         },
+
         400
+
       );
+
     }
 
-    product.sellingPrice = price;
+
+    product.sellingPrice =
+      price;
+
   }
 
-  if (body.costPrice !== undefined) {
+
+  if (
+    body.costPrice !==
+    undefined
+  ) {
 
     const price =
-      Number(body.costPrice);
+      Number(
+        body.costPrice
+      );
+
 
     if (
-      !Number.isFinite(price) ||
+      !Number.isFinite(
+        price
+      ) ||
       price < 0
     ) {
+
       return json(
+
         {
           success: false,
+
           error:
             "Invalid cost price"
+
         },
+
         400
+
       );
+
     }
 
-    product.costPrice = price;
+
+    product.costPrice =
+      price;
+
   }
 
-  if (body.reorderLevel !== undefined) {
+
+  if (
+    body.reorderLevel !==
+    undefined
+  ) {
 
     const level =
-      Number(body.reorderLevel);
+      Number(
+        body.reorderLevel
+      );
+
 
     if (
-      !Number.isFinite(level) ||
+      !Number.isFinite(
+        level
+      ) ||
       level < 0
     ) {
+
       return json(
+
         {
           success: false,
+
           error:
             "Invalid reorder level"
+
         },
+
         400
+
       );
+
     }
 
-    product.reorderLevel = level;
+
+    product.reorderLevel =
+      level;
+
   }
 
-  if (body.active !== undefined) {
+
+  if (
+    body.active !==
+    undefined
+  ) {
+
     product.active =
-      Boolean(body.active);
+      Boolean(
+        body.active
+      );
+
   }
+
 
   product.updatedAt =
     new Date().toISOString();
 
+
   await env.STALL_DATA.put(
+
     key,
-    JSON.stringify(product)
+
+    JSON.stringify(
+      product
+    )
+
   );
 
+
   return json({
+
     success: true,
+
     product
+
   });
+
 }
 
 
 /* ============================================================
-   INVENTORY ADJUSTMENT
+   MANUAL INVENTORY ADJUSTMENT
 ============================================================ */
 
 async function adjustInventory(
@@ -963,75 +1757,131 @@ async function adjustInventory(
   const key =
     `PRODUCT:${productId}`;
 
+
   const product =
     await env.STALL_DATA.get(
       key,
       "json"
     );
 
+
   if (!product) {
+
     return json(
+
       {
         success: false,
-        error: "Product not found"
+
+        error:
+          "Product not found"
+
       },
+
       404
+
     );
+
   }
 
-  const body = await readJson(request);
+
+  const body =
+    await readJson(request);
+
 
   const change =
-    Number(body.change);
+    Number(
+      body.change
+    );
+
 
   const reason =
     String(
-      body.reason || "Manual adjustment"
+
+      body.reason ||
+      "Manual adjustment"
+
     ).trim();
 
+
   if (
-    !Number.isFinite(change) ||
+    !Number.isFinite(
+      change
+    ) ||
     change === 0
   ) {
+
     return json(
+
       {
         success: false,
+
         error:
           "Inventory change must not be zero"
+
       },
+
       400
+
     );
+
   }
+
+
+  const previousStock =
+    Number(
+      product.stockQuantity || 0
+    );
+
 
   const newStock =
-    Number(product.stockQuantity) +
+    previousStock +
     change;
 
-  if (newStock < 0) {
+
+  if (
+    newStock < 0
+  ) {
+
     return json(
+
       {
         success: false,
+
         error:
           "Inventory cannot go below zero"
+
       },
+
       400
+
     );
+
   }
+
 
   product.stockQuantity =
     newStock;
 
+
   product.updatedAt =
     new Date().toISOString();
 
+
   await env.STALL_DATA.put(
+
     key,
-    JSON.stringify(product)
+
+    JSON.stringify(
+      product
+    )
+
   );
+
 
   const inventoryRecord = {
 
-    id: createId("INV"),
+    id:
+      createId("INV"),
 
     productId,
 
@@ -1040,8 +1890,7 @@ async function adjustInventory(
 
     change,
 
-    previousStock:
-      newStock - change,
+    previousStock,
 
     newStock,
 
@@ -1049,23 +1898,708 @@ async function adjustInventory(
 
     createdAt:
       new Date().toISOString()
+
   };
 
+
   await env.STALL_DATA.put(
+
     `INVENTORY:${inventoryRecord.id}`,
-    JSON.stringify(inventoryRecord)
+
+    JSON.stringify(
+      inventoryRecord
+    )
+
   );
 
+
   return json({
+
     success: true,
+
     product,
+
     inventoryRecord
+
   });
+
 }
 
 
 /* ============================================================
-   ORDERS
+   INVENTORY HISTORY
+============================================================ */
+
+async function getInventoryHistory(
+  env
+) {
+
+  const records =
+    await getDataByPrefix(
+      env,
+      "INVENTORY:"
+    );
+
+
+  records.sort(
+
+    (a, b) =>
+      new Date(
+        b.createdAt
+      ) -
+      new Date(
+        a.createdAt
+      )
+
+  );
+
+
+  return json({
+
+    success: true,
+
+    inventory:
+      records,
+
+    count:
+      records.length
+
+  });
+
+}
+
+
+/* ============================================================
+   CREATE ORDER
+============================================================ */
+
+async function createOrder(
+  request,
+  env
+) {
+
+  const body =
+    await readJson(request);
+
+
+  /* ----------------------------------------------------------
+     CUSTOMER / SELLER DETAILS
+  ---------------------------------------------------------- */
+
+  const sellerName =
+    String(
+      body.sellerName || ""
+    ).trim();
+
+
+  const customerName =
+    String(
+      body.customerName || ""
+    ).trim();
+
+
+  const customerPhone =
+    String(
+      body.customerPhone || ""
+    ).trim();
+
+
+  const paymentMethod =
+    String(
+      body.paymentMethod ||
+      "cash"
+    )
+      .trim()
+      .toLowerCase();
+
+
+  const items =
+    Array.isArray(
+      body.items
+    )
+      ? body.items
+      : [];
+
+
+  /* ----------------------------------------------------------
+     VALIDATION
+  ---------------------------------------------------------- */
+
+  if (!sellerName) {
+
+    return json(
+
+      {
+        success: false,
+
+        error:
+          "Seller name is required"
+
+      },
+
+      400
+
+    );
+
+  }
+
+
+  if (!items.length) {
+
+    return json(
+
+      {
+        success: false,
+
+        error:
+          "Order must contain at least one product"
+
+      },
+
+      400
+
+    );
+
+  }
+
+
+  const allowedPaymentMethods = [
+
+    "cash",
+
+    "mpesa",
+
+    "credit"
+
+  ];
+
+
+  if (
+    !allowedPaymentMethods.includes(
+      paymentMethod
+    )
+  ) {
+
+    return json(
+
+      {
+        success: false,
+
+        error:
+          "Invalid payment method"
+
+      },
+
+      400
+
+    );
+
+  }
+
+
+  /* ----------------------------------------------------------
+     PREPARE ORDER ITEMS
+  ---------------------------------------------------------- */
+
+  const orderItems = [];
+
+  let total = 0;
+
+
+  /*
+   * IMPORTANT:
+   *
+   * We do NOT trust:
+   *
+   * - price
+   * - product name
+   * - total
+   *
+   * from the browser.
+   *
+   * The Worker gets these values
+   * directly from KV.
+   */
+
+
+  for (
+    const requestedItem
+    of items
+  ) {
+
+    const productId =
+      String(
+        requestedItem.productId ||
+        ""
+      ).trim();
+
+
+    const quantity =
+      Number(
+        requestedItem.quantity
+      );
+
+
+    if (!productId) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            "A product ID is missing"
+
+        },
+
+        400
+
+      );
+
+    }
+
+
+    if (
+      !Number.isInteger(
+        quantity
+      ) ||
+      quantity <= 0
+    ) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            "Product quantity must be a whole number greater than zero"
+
+        },
+
+        400
+
+      );
+
+    }
+
+
+    /* --------------------------------------------------------
+       LOAD PRODUCT
+    -------------------------------------------------------- */
+
+    const product =
+      await env.STALL_DATA.get(
+
+        `PRODUCT:${productId}`,
+
+        "json"
+
+      );
+
+
+    if (!product) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            `Product not found: ${productId}`
+
+        },
+
+        404
+
+      );
+
+    }
+
+
+    if (
+      product.active ===
+      false
+    ) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            `${product.name} is no longer available`
+
+        },
+
+        400
+
+      );
+
+    }
+
+
+    /* --------------------------------------------------------
+       CHECK STOCK
+    -------------------------------------------------------- */
+
+    const currentStock =
+      Number(
+        product.stockQuantity ||
+        0
+      );
+
+
+    if (
+      quantity >
+      currentStock
+    ) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            `Not enough stock for ${product.name}. Available: ${currentStock}`
+
+        },
+
+        400
+
+      );
+
+    }
+
+
+    /* --------------------------------------------------------
+       SERVER-SIDE PRICE
+    -------------------------------------------------------- */
+
+    const unitPrice =
+      Number(
+        product.sellingPrice
+      );
+
+
+    if (
+      !Number.isFinite(
+        unitPrice
+      ) ||
+      unitPrice <= 0
+    ) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            `Invalid selling price for ${product.name}`
+
+        },
+
+        400
+
+      );
+
+    }
+
+
+    const lineTotal =
+      unitPrice *
+      quantity;
+
+
+    total +=
+      lineTotal;
+
+
+    orderItems.push({
+
+      productId:
+        product.id,
+
+      productName:
+        product.name,
+
+      quantity,
+
+      unitPrice,
+
+      lineTotal,
+
+      costPrice:
+        Number(
+          product.costPrice ||
+          0
+        )
+
+    });
+
+  }
+
+
+  /* ----------------------------------------------------------
+     CREATE ORDER
+  ---------------------------------------------------------- */
+
+  const orderId =
+    createId("ORD");
+
+
+  const now =
+    new Date().toISOString();
+
+
+  /*
+   * For the first version:
+   *
+   * cash    -> paid
+   * mpesa   -> pending
+   * credit  -> unpaid
+   *
+   * M-Pesa will be connected properly later.
+   */
+
+  let paymentStatus =
+    "PENDING";
+
+
+  if (
+    paymentMethod ===
+    "cash"
+  ) {
+
+    paymentStatus =
+      "PAID";
+
+  }
+
+
+  if (
+    paymentMethod ===
+    "credit"
+  ) {
+
+    paymentStatus =
+      "UNPAID";
+
+  }
+
+
+  const order = {
+
+    id:
+      orderId,
+
+    sellerName,
+
+    customerName,
+
+    customerPhone,
+
+    paymentMethod,
+
+    items:
+      orderItems,
+
+    total,
+
+    currency:
+      "KES",
+
+    status:
+      "completed",
+
+    paymentStatus,
+
+    createdAt:
+      now,
+
+    updatedAt:
+      now
+
+  };
+
+
+  /* ----------------------------------------------------------
+     SAVE ORDER
+  ---------------------------------------------------------- */
+
+  await env.STALL_DATA.put(
+
+    `ORDER:${orderId}`,
+
+    JSON.stringify(
+      order
+    )
+
+  );
+
+
+  /* ----------------------------------------------------------
+     REDUCE STOCK
+  ---------------------------------------------------------- */
+
+  for (
+    const item
+    of orderItems
+  ) {
+
+    const key =
+      `PRODUCT:${item.productId}`;
+
+
+    const product =
+      await env.STALL_DATA.get(
+        key,
+        "json"
+      );
+
+
+    if (!product) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            "Product disappeared during order processing"
+
+        },
+
+        500
+
+      );
+
+    }
+
+
+    const previousStock =
+      Number(
+        product.stockQuantity ||
+        0
+      );
+
+
+    const newStock =
+      previousStock -
+      item.quantity;
+
+
+    if (
+      newStock < 0
+    ) {
+
+      return json(
+
+        {
+          success: false,
+
+          error:
+            `Inventory conflict for ${product.name}. Please retry the order.`
+
+        },
+
+        409
+
+      );
+
+    }
+
+
+    product.stockQuantity =
+      newStock;
+
+
+    product.updatedAt =
+      new Date().toISOString();
+
+
+    await env.STALL_DATA.put(
+
+      key,
+
+      JSON.stringify(
+        product
+      )
+
+    );
+
+
+    /* --------------------------------------------------------
+       INVENTORY HISTORY
+    -------------------------------------------------------- */
+
+    const inventoryRecord = {
+
+      id:
+        createId("INV"),
+
+      productId:
+        product.id,
+
+      productName:
+        product.name,
+
+      change:
+        -item.quantity,
+
+      previousStock,
+
+      newStock,
+
+      reason:
+        `Sale ${orderId}`,
+
+      orderId,
+
+      createdAt:
+        now
+
+    };
+
+
+    await env.STALL_DATA.put(
+
+      `INVENTORY:${inventoryRecord.id}`,
+
+      JSON.stringify(
+        inventoryRecord
+      )
+
+    );
+
+  }
+
+
+  /* ----------------------------------------------------------
+     RESPONSE
+  ---------------------------------------------------------- */
+
+  return json(
+
+    {
+
+      success: true,
+
+      message:
+        "Order created successfully",
+
+      order
+
+    },
+
+    201
+
+  );
+
+}
+
+
+/* ============================================================
+   GET ORDERS
 ============================================================ */
 
 async function getOrders(env) {
@@ -1076,17 +2610,31 @@ async function getOrders(env) {
       "ORDER:"
     );
 
+
   orders.sort(
+
     (a, b) =>
-      new Date(b.createdAt) -
-      new Date(a.createdAt)
+      new Date(
+        b.createdAt
+      ) -
+      new Date(
+        a.createdAt
+      )
+
   );
 
+
   return json({
+
     success: true,
+
     orders,
-    count: orders.length
+
+    count:
+      orders.length
+
   });
+
 }
 
 
@@ -1102,17 +2650,31 @@ async function getExpenses(env) {
       "EXPENSE:"
     );
 
+
   expenses.sort(
+
     (a, b) =>
-      new Date(b.createdAt) -
-      new Date(a.createdAt)
+      new Date(
+        b.createdAt
+      ) -
+      new Date(
+        a.createdAt
+      )
+
   );
 
+
   return json({
+
     success: true,
+
     expenses,
-    count: expenses.length
+
+    count:
+      expenses.length
+
   });
+
 }
 
 
@@ -1128,11 +2690,13 @@ async function getDashboard(env) {
       "STUDENT:"
     );
 
+
   const contributions =
     await getDataByPrefix(
       env,
       "CONTRIBUTION:"
     );
+
 
   const products =
     await getDataByPrefix(
@@ -1140,11 +2704,13 @@ async function getDashboard(env) {
       "PRODUCT:"
     );
 
+
   const orders =
     await getDataByPrefix(
       env,
       "ORDER:"
     );
+
 
   const expenses =
     await getDataByPrefix(
@@ -1153,63 +2719,205 @@ async function getDashboard(env) {
     );
 
 
+  /* ----------------------------------------------------------
+     CONTRIBUTIONS
+  ---------------------------------------------------------- */
+
   const approvedContributions =
     contributions.filter(
+
       contribution =>
-        contribution.status === "approved"
+        contribution.status ===
+        "approved"
+
     );
 
 
   const pendingContributions =
     contributions.filter(
+
       contribution =>
-        contribution.status === "pending"
+        contribution.status ===
+        "pending"
+
     );
 
 
   const totalContributions =
     approvedContributions.reduce(
+
       (sum, contribution) =>
+
         sum +
         Number(
-          contribution.agreedValue || 0
+          contribution.agreedValue ||
+          0
         ),
+
       0
+
+    );
+
+
+  /* ----------------------------------------------------------
+     SALES
+  ---------------------------------------------------------- */
+
+  const completedOrders =
+    orders.filter(
+
+      order =>
+        order.status ===
+        "completed"
+
     );
 
 
   const totalSales =
-    orders.reduce(
+    completedOrders.reduce(
+
       (sum, order) =>
+
         sum +
         Number(
-          order.total || 0
+          order.total ||
+          0
         ),
+
       0
+
     );
 
+
+  /* ----------------------------------------------------------
+     COST OF GOODS SOLD
+  ---------------------------------------------------------- */
+
+  const totalCostOfGoodsSold =
+    completedOrders.reduce(
+
+      (sum, order) => {
+
+        const orderCost =
+          Array.isArray(
+            order.items
+          )
+
+            ? order.items.reduce(
+
+                (
+                  itemSum,
+                  item
+                ) =>
+
+                  itemSum +
+
+                  (
+                    Number(
+                      item.costPrice ||
+                      0
+                    ) *
+
+                    Number(
+                      item.quantity ||
+                      0
+                    )
+                  ),
+
+                0
+
+              )
+
+            : 0;
+
+
+        return (
+          sum +
+          orderCost
+        );
+
+      },
+
+      0
+
+    );
+
+
+  /* ----------------------------------------------------------
+     EXPENSES
+  ---------------------------------------------------------- */
 
   const totalExpenses =
     expenses.reduce(
+
       (sum, expense) =>
+
         sum +
         Number(
-          expense.amount || 0
+          expense.amount ||
+          0
         ),
+
       0
+
     );
 
+
+  /* ----------------------------------------------------------
+     PROFIT
+  ---------------------------------------------------------- */
+
+  const grossProfit =
+    totalSales -
+    totalCostOfGoodsSold;
+
+
+  const netProfit =
+    grossProfit -
+    totalExpenses;
+
+
+  /* ----------------------------------------------------------
+     STOCK
+  ---------------------------------------------------------- */
 
   const totalStockUnits =
     products.reduce(
+
       (sum, product) =>
+
         sum +
         Number(
-          product.stockQuantity || 0
+          product.stockQuantity ||
+          0
         ),
+
       0
+
     );
 
+
+  const lowStockProducts =
+    products.filter(
+
+      product =>
+
+        Number(
+          product.stockQuantity ||
+          0
+        ) <=
+
+        Number(
+          product.reorderLevel ||
+          0
+        )
+
+    );
+
+
+  /* ----------------------------------------------------------
+     RETURN DASHBOARD
+  ---------------------------------------------------------- */
 
   return json({
 
@@ -1220,6 +2928,12 @@ async function getDashboard(env) {
 
     products:
       products.length,
+
+    activeProducts:
+      products.filter(
+        product =>
+          product.active !== false
+      ).length,
 
     orders:
       orders.length,
@@ -1232,13 +2946,23 @@ async function getDashboard(env) {
 
     totalSales,
 
+    totalCostOfGoodsSold,
+
     totalExpenses,
+
+    grossProfit,
+
+    netProfit,
 
     netPosition:
       totalSales -
       totalExpenses,
 
-    totalStockUnits
+    totalStockUnits,
+
+    lowStockProducts:
+      lowStockProducts.length
 
   });
+
 }
