@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Orders | School Stall</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      color: #172033;
+    }
+
+    header {
+      background: #172033;
+      color: white;
+      padding: 18px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header p {
+      margin: 5px 0 0;
+      opacity: 0.8;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 18px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .back-btn,
+    .refresh-btn {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .back-btn {
+      background: #e8edf3;
+      color: #172033;
+    }
+
+    .refresh-btn {
+      background: #172033;
+      color: white;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #667085;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .paid {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .unpaid {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .completed {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .order {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .order-header {
+      background: #f8fafc;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .order-id {
+      font-weight: bold;
+    }
+
+    .order-date {
+      color: #667085;
+      font-size: 13px;
+    }
+
+    .order-body {
+      padding: 14px;
+    }
+
+    .order-info {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .info-label {
+      display: block;
+      font-size: 12px;
+      color: #667085;
+      margin-bottom: 3px;
+    }
+
+    .info-value {
+      font-weight: 600;
+    }
+
+    .items {
+      border-top: 1px solid #eee;
+      padding-top: 12px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 2px solid #172033;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #667085;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    @media (max-width: 700px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .order-info {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .order-header {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .container {
+        padding: 12px;
+      }
+
+      .order-info {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>School Stall — Orders</h1>
+  <p>View sales and payment status</p>
+</header>
+
+<div class="container">
+
+  <div class="topbar">
+    <button class="back-btn" onclick="window.location.href='index.html'">
+      ← Dashboard
+    </button>
+
+    <button class="refresh-btn" onclick="loadOrders()">
+      Refresh
+    </button>
+  </div>
+
+  <div id="errorBox" class="error"></div>
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-label">Total Orders</div>
+      <div class="stat-value" id="totalOrders">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">Total Sales</div>
+      <div class="stat-value" id="totalSales">KSh 0</div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">Paid Orders</div>
+      <div class="stat-value" id="paidOrders">0</div>
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>Recent Orders</h2>
+
+    <div id="ordersList">
+      <div class="empty">
+        Loading orders...
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const API_URL =
+  "https://school-stall-commerce.priorityfixa.workers.dev";
+
+
+async function loadOrders() {
+
+  const ordersList = document.getElementById("ordersList");
+  const errorBox = document.getElementById("errorBox");
+
+  errorBox.style.display = "none";
+
+  ordersList.innerHTML = `
+    <div class="empty">
+      Loading orders...
+    </div>
+  `;
+
+  try {
+
+    const response = await fetch(
+      `${API_URL}/api/orders`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error || "Failed to load orders"
+      );
+    }
+
+    const orders = data.orders || [];
+
+    renderStats(orders);
+    renderOrders(orders);
+
+  } catch (error) {
+
+    console.error(error);
+
+    errorBox.textContent =
+      error.message || "Unable to load orders.";
+
+    errorBox.style.display = "block";
+
+    ordersList.innerHTML = `
+      <div class="empty">
+        Could not load orders.
+      </div>
+    `;
+  }
+}
+
+
+function renderStats(orders) {
+
+  const totalOrders = orders.length;
+
+  const totalSales = orders.reduce(
+    (sum, order) =>
+      sum + Number(order.total || 0),
+    0
+  );
+
+  const paidOrders = orders.filter(
+    order =>
+      order.paymentStatus === "PAID"
+  ).length;
+
+  document.getElementById(
+    "totalOrders"
+  ).textContent = totalOrders;
+
+  document.getElementById(
+    "totalSales"
+  ).textContent =
+    formatCurrency(totalSales);
+
+  document.getElementById(
+    "paidOrders"
+  ).textContent = paidOrders;
+}
+
+
+function renderOrders(orders) {
+
+  const container =
+    document.getElementById("ordersList");
+
+  if (!orders.length) {
+
+    container.innerHTML = `
+      <div class="empty">
+        No orders have been recorded yet.
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    orders.map(order => {
+
+      const items =
+        Array.isArray(order.items)
+          ? order.items
+          : [];
+
+      const paymentClass =
+        getPaymentClass(
+          order.paymentStatus
+        );
+
+      const paymentLabel =
+        getPaymentLabel(
+          order.paymentStatus
+        );
+
+      return `
+
+        <div class="order">
+
+          <div class="order-header">
+
+            <div>
+              <div class="order-id">
+                ${escapeHtml(order.id)}
+              </div>
+
+              <div class="order-date">
+                ${formatDate(order.createdAt)}
+              </div>
+            </div>
+
+            <div>
+              <span class="status completed">
+                ${escapeHtml(order.status || "completed")}
+              </span>
+
+              <span class="status ${paymentClass}">
+                ${paymentLabel}
+              </span>
+            </div>
+
+          </div>
+
+
+          <div class="order-body">
+
+            <div class="order-info">
+
+              <div>
+                <span class="info-label">
+                  Seller
+                </span>
+
+                <span class="info-value">
+                  ${escapeHtml(
+                    order.sellerName || "-"
+                  )}
+                </span>
+              </div>
+
+
+              <div>
+                <span class="info-label">
+                  Customer
+                </span>
+
+                <span class="info-value">
+                  ${escapeHtml(
+                    order.customerName || "Walk-in"
+                  )}
+                </span>
+              </div>
+
+
+              <div>
+                <span class="info-label">
+                  Payment
+                </span>
+
+                <span class="info-value">
+                  ${escapeHtml(
+                    order.paymentMethod || "-"
+                  )}
+                </span>
+              </div>
+
+
+              <div>
+                <span class="info-label">
+                  Phone
+                </span>
+
+                <span class="info-value">
+                  ${escapeHtml(
+                    order.customerPhone || "-"
+                  )}
+                </span>
+              </div>
+
+            </div>
+
+
+            <div class="items">
+
+              ${items.map(item => `
+
+                <div class="item">
+
+                  <div>
+                    <strong>
+                      ${escapeHtml(
+                        item.productName ||
+                        item.name ||
+                        item.productId
+                      )}
+                    </strong>
+
+                    <div>
+                      ${Number(item.quantity || 0)}
+                      ×
+                      ${formatCurrency(
+                        item.sellingPrice || 0
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    ${formatCurrency(
+                      item.lineTotal || 0
+                    )}
+                  </div>
+
+                </div>
+
+              `).join("")}
+
+            </div>
+
+
+            <div class="order-total">
+
+              <span>
+                Total
+              </span>
+
+              <span>
+                ${formatCurrency(
+                  order.total || 0
+                )}
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      `;
+
+    }).join("");
+}
+
+
+function getPaymentClass(status) {
+
+  if (status === "PAID") {
+    return "paid";
+  }
+
+  if (status === "PENDING") {
+    return "pending";
+  }
+
+  if (status === "UNPAID") {
+    return "unpaid";
+  }
+
+  return "pending";
+}
+
+
+function getPaymentLabel(status) {
+
+  if (status === "PAID") {
+    return "Paid";
+  }
+
+  if (status === "PENDING") {
+    return "Payment Pending";
+  }
+
+  if (status === "UNPAID") {
+    return "Unpaid";
+  }
+
+  return status || "Unknown";
+}
+
+
+function formatCurrency(amount) {
+
+  return "KSh " +
+    Number(amount || 0).toLocaleString(
+      "en-KE",
+      {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }
+    );
+}
+
+
+function formatDate(date) {
+
+  if (!date) {
+    return "-";
+  }
+
+  const parsed =
+    new Date(date);
+
+  if (isNaN(parsed.getTime())) {
+    return date;
+  }
+
+  return parsed.toLocaleString(
+    "en-KE",
+    {
+      dateStyle: "medium",
+      timeStyle: "short"
+    }
+  );
+}
+
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+
+loadOrders();
+
+</script>
+
+</body>
+</html>
