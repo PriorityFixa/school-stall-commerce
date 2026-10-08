@@ -1,0 +1,11 @@
+name = "school-stall-api"
+main = "index.js"
+compatibility_date = "2026-10-08"
+
+[[kv_namespaces]]
+binding = "STALL_DATA"
+id = "REPLACE_WITH_STALL_DATA_ID"
+
+[[kv_namespaces]]
+binding = "STALL_SEQUENCES"
+id = "REPLACE_WITH_STALL_SEQUENCES_ID"
