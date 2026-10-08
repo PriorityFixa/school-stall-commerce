@@ -4,8 +4,8 @@ compatibility_date = "2026-10-08"
 
 [[kv_namespaces]]
 binding = "STALL_DATA"
-id = "REPLACE_WITH_STALL_DATA_ID"
+id = "Rf4aae12de6ec4436b194ff046ce6f37d"
 
 [[kv_namespaces]]
 binding = "STALL_SEQUENCES"
-id = "REPLACE_WITH_STALL_SEQUENCES_ID"
+id = "c6658e4528364a9f94ef90b922060358"
