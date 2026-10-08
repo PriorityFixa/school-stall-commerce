@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Products & Inventory | School Stall</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      color: #172033;
+    }
+
+    header {
+      background: #172033;
+      color: white;
+      padding: 20px;
+    }
+
+    header h1 {
+      margin: 0 0 5px;
+      font-size: 22px;
+    }
+
+    header p {
+      margin: 0;
+      opacity: 0.75;
+      font-size: 14px;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #172033;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 19px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d8dce3;
+      border-radius: 9px;
+      font-size: 15px;
+      background: white;
+    }
+
+    button {
+      border: none;
+      border-radius: 9px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #172033;
+      color: white;
+    }
+
+    .secondary {
+      background: #e9edf3;
+      color: #172033;
+    }
+
+    .danger {
+      background: #b42318;
+      color: white;
+    }
+
+    .success {
+      background: #18794e;
+      color: white;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 14px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success-message {
+      background: #e7f6ed;
+      color: #17633f;
+    }
+
+    .message.error-message {
+      background: #fdecec;
+      color: #a61b1b;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 750px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 13px 10px;
+      border-bottom: 1px solid #e7e9ed;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f8f9fb;
+      font-size: 13px;
+    }
+
+    .stock-good {
+      color: #18794e;
+      font-weight: bold;
+    }
+
+    .stock-low {
+      color: #b54708;
+      font-weight: bold;
+    }
+
+    .stock-out {
+      color: #b42318;
+      font-weight: bold;
+    }
+
+    .actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .actions button {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 30px;
+      color: #687386;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.05);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #687386;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    @media (min-width: 700px) {
+
+      .form-grid {
+        grid-template-columns:
+          repeat(2, 1fr);
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+
+      .stats {
+        grid-template-columns:
+          repeat(4, 1fr);
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Products & Inventory</h1>
+  <p>Manage products, prices and stock</p>
+</header>
+
+<main>
+
+  <a
+    class="back-link"
+    href="index.html"
+  >
+    ← Back to Admin Dashboard
+  </a>
+
+
+  <!-- =====================================================
+       STATS
+  ====================================================== -->
+
+  <div class="stats">
+
+    <div class="stat">
+      <div class="stat-label">
+        Products
+      </div>
+
+      <div
+        class="stat-value"
+        id="productCount"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="stat">
+      <div class="stat-label">
+        Active Products
+      </div>
+
+      <div
+        class="stat-value"
+        id="activeCount"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="stat">
+      <div class="stat-label">
+        Stock Units
+      </div>
+
+      <div
+        class="stat-value"
+        id="stockCount"
+      >
+        0
+      </div>
+    </div>
+
+
+    <div class="stat">
+      <div class="stat-label">
+        Low Stock
+      </div>
+
+      <div
+        class="stat-value"
+        id="lowStockCount"
+      >
+        0
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       ADD PRODUCT
+  ====================================================== -->
+
+  <section class="card">
+
+    <h2>Add Product</h2>
+
+    <form id="productForm">
+
+      <div class="form-grid">
+
+        <div class="full">
+
+          <label for="name">
+            Product Name
+          </label>
+
+          <input
+            id="name"
+            type="text"
+            placeholder="e.g. Samosa"
+            required
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="sellingPrice">
+            Selling Price (KES)
+          </label>
+
+          <input
+            id="sellingPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="50"
+            required
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="costPrice">
+            Cost Price (KES)
+          </label>
+
+          <input
+            id="costPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="30"
+            value="0"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="openingStock">
+            Opening Stock
+          </label>
+
+          <input
+            id="openingStock"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="20"
+            value="0"
+          >
+
+        </div>
+
+
+        <div>
+
+          <label for="reorderLevel">
+            Reorder Level
+          </label>
+
+          <input
+            id="reorderLevel"
+            type="number"
+            min="0"
+            step="1"
+            placeholder="5"
+            value="5"
+          >
+
+        </div>
+
+
+        <div class="full">
+
+          <button
+            type="submit"
+            class="primary"
+          >
+            Add Product
+          </button>
+
+        </div>
+
+      </div>
+
+    </form>
+
+    <div
+      id="formMessage"
+      class="message"
+    ></div>
+
+  </section>
+
+
+  <!-- =====================================================
+       PRODUCTS
+  ====================================================== -->
+
+  <section class="card">
+
+    <h2>Product Inventory</h2>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Product</th>
+            <th>Selling Price</th>
+            <th>Cost</th>
+            <th>Stock</th>
+            <th>Reorder</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="productTable">
+
+          <tr>
+            <td
+              colspan="7"
+              class="empty"
+            >
+              Loading products...
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+  /* ========================================================
+     API
+  ======================================================== */
+
+  const API_URL =
+    "https://school-stall-commerce.priorityfixa.workers.dev";
+
+
+  /* ========================================================
+     HELPERS
+  ======================================================== */
+
+  function money(amount) {
+
+    return "KES " +
+      Number(amount || 0)
+        .toLocaleString(
+          "en-KE",
+          {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }
+        );
+  }
+
+
+  function showMessage(
+    message,
+    type = "success-message"
+  ) {
+
+    const box =
+      document.getElementById(
+        "formMessage"
+      );
+
+    box.textContent = message;
+
+    box.className =
+      "message show " + type;
+
+  }
+
+
+  /* ========================================================
+     LOAD PRODUCTS
+  ======================================================== */
+
+  async function loadProducts() {
+
+    try {
+
+      const response =
+        await fetch(
+          API_URL +
+          "/api/products"
+        );
+
+      const data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.error ||
+          "Could not load products"
+        );
+      }
+
+      renderProducts(
+        data.products || []
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      document.getElementById(
+        "productTable"
+      ).innerHTML = `
+        <tr>
+          <td colspan="7" class="empty">
+            Failed to load products.
+          </td>
+        </tr>
+      `;
+
+    }
+
+  }
+
+
+  /* ========================================================
+     RENDER PRODUCTS
+  ======================================================== */
+
+  function renderProducts(
+    products
+  ) {
+
+    const table =
+      document.getElementById(
+        "productTable"
+      );
+
+    document.getElementById(
+      "productCount"
+    ).textContent =
+      products.length;
+
+
+    const activeProducts =
+      products.filter(
+        product =>
+          product.active
+      );
+
+
+    document.getElementById(
+      "activeCount"
+    ).textContent =
+      activeProducts.length;
+
+
+    const totalStock =
+      products.reduce(
+        (sum, product) =>
+          sum +
+          Number(
+            product.stockQuantity || 0
+          ),
+        0
+      );
+
+
+    document.getElementById(
+      "stockCount"
+    ).textContent =
+      totalStock;
+
+
+    const lowStock =
+      products.filter(
+        product =>
+          Number(
+            product.stockQuantity || 0
+          ) <=
+          Number(
+            product.reorderLevel || 0
+          )
+      );
+
+
+    document.getElementById(
+      "lowStockCount"
+    ).textContent =
+      lowStock.length;
+
+
+    if (!products.length) {
+
+      table.innerHTML = `
+        <tr>
+          <td
+            colspan="7"
+            class="empty"
+          >
+            No products yet.
+            Add your first product above.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+
+    table.innerHTML =
+      products.map(
+        product => {
+
+          const stock =
+            Number(
+              product.stockQuantity || 0
+            );
+
+          const reorder =
+            Number(
+              product.reorderLevel || 0
+            );
+
+
+          let stockClass =
+            "stock-good";
+
+          let stockLabel =
+            "In stock";
+
+
+          if (stock === 0) {
+
+            stockClass =
+              "stock-out";
+
+            stockLabel =
+              "Out of stock";
+
+          } else if (
+            stock <= reorder
+          ) {
+
+            stockClass =
+              "stock-low";
+
+            stockLabel =
+              "Low stock";
+          }
+
+
+          return `
+
+            <tr>
+
+              <td>
+                <strong>
+                  ${escapeHtml(
+                    product.name
+                  )}
+                </strong>
+              </td>
+
+              <td>
+                ${money(
+                  product.sellingPrice
+                )}
+              </td>
+
+              <td>
+                ${money(
+                  product.costPrice
+                )}
+              </td>
+
+              <td>
+                <strong>
+                  ${stock}
+                </strong>
+              </td>
+
+              <td>
+                ${reorder}
+              </td>
+
+              <td class="${stockClass}">
+                ${stockLabel}
+              </td>
+
+              <td>
+
+                <div class="actions">
+
+                  <button
+                    class="success"
+                    onclick="addStock('${product.id}')"
+                  >
+                    + Stock
+                  </button>
+
+                  <button
+                    class="secondary"
+                    onclick="removeStock('${product.id}')"
+                  >
+                    − Stock
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+          `;
+
+        }
+      ).join("");
+
+  }
+
+
+  /* ========================================================
+     ADD PRODUCT
+  ======================================================== */
+
+  document.getElementById(
+    "productForm"
+  ).addEventListener(
+    "submit",
+    async function(event) {
+
+      event.preventDefault();
+
+
+      const name =
+        document.getElementById(
+          "name"
+        ).value.trim();
+
+
+      const sellingPrice =
+        Number(
+          document.getElementById(
+            "sellingPrice"
+          ).value
+        );
+
+
+      const costPrice =
+        Number(
+          document.getElementById(
+            "costPrice"
+          ).value || 0
+        );
+
+
+      const openingStock =
+        Number(
+          document.getElementById(
+            "openingStock"
+          ).value || 0
+        );
+
+
+      const reorderLevel =
+        Number(
+          document.getElementById(
+            "reorderLevel"
+          ).value || 0
+        );
+
+
+      try {
+
+        const response =
+          await fetch(
+            API_URL +
+            "/api/products",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type":
+                  "application/json"
+              },
+
+              body: JSON.stringify({
+
+                name,
+
+                sellingPrice,
+
+                costPrice,
+
+                openingStock,
+
+                reorderLevel
+
+              })
+            }
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok ||
+            !data.success) {
+
+          throw new Error(
+            data.error ||
+            "Could not create product"
+          );
+
+        }
+
+
+        showMessage(
+          "Product added successfully."
+        );
+
+
+        document.getElementById(
+          "productForm"
+        ).reset();
+
+
+        document.getElementById(
+          "costPrice"
+        ).value = 0;
+
+
+        document.getElementById(
+          "openingStock"
+        ).value = 0;
+
+
+        document.getElementById(
+          "reorderLevel"
+        ).value = 5;
+
+
+        await loadProducts();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          error.message,
+          "error-message"
+        );
+
+      }
+
+    }
+  );
+
+
+  /* ========================================================
+     ADD STOCK
+  ======================================================== */
+
+  async function addStock(
+    productId
+  ) {
+
+    const amount =
+      prompt(
+        "How many units are being added?"
+      );
+
+
+    if (amount === null) {
+      return;
+    }
+
+
+    const quantity =
+      Number(amount);
+
+
+    if (
+      !Number.isInteger(quantity) ||
+      quantity <= 0
+    ) {
+
+      alert(
+        "Enter a whole number greater than zero."
+      );
+
+      return;
+    }
+
+
+    const reason =
+      prompt(
+        "Reason for stock addition:",
+        "Stock received"
+      );
+
+
+    if (reason === null) {
+      return;
+    }
+
+
+    await adjustStock(
+      productId,
+      quantity,
+      reason
+    );
+
+  }
+
+
+  /* ========================================================
+     REMOVE STOCK
+  ======================================================== */
+
+  async function removeStock(
+    productId
+  ) {
+
+    const amount =
+      prompt(
+        "How many units are being removed?"
+      );
+
+
+    if (amount === null) {
+      return;
+    }
+
+
+    const quantity =
+      Number(amount);
+
+
+    if (
+      !Number.isInteger(quantity) ||
+      quantity <= 0
+    ) {
+
+      alert(
+        "Enter a whole number greater than zero."
+      );
+
+      return;
+    }
+
+
+    const reason =
+      prompt(
+        "Reason for stock removal:",
+        "Stock correction"
+      );
+
+
+    if (reason === null) {
+      return;
+    }
+
+
+    await adjustStock(
+      productId,
+      -quantity,
+      reason
+    );
+
+  }
+
+
+  /* ========================================================
+     ADJUST STOCK
+  ======================================================== */
+
+  async function adjustStock(
+    productId,
+    change,
+    reason
+  ) {
+
+    try {
+
+      const response =
+        await fetch(
+          API_URL +
+          "/api/inventory/" +
+          productId +
+          "/adjust",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              change,
+              reason
+            })
+          }
+        );
+
+
+      const data =
+        await response.json();
+
+
+      if (!response.ok ||
+          !data.success) {
+
+        throw new Error(
+          data.error ||
+          "Inventory update failed"
+        );
+
+      }
+
+
+      await loadProducts();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        error.message
+      );
+
+    }
+
+  }
+
+
+  /* ========================================================
+     ESCAPE HTML
+  ======================================================== */
+
+  function escapeHtml(
+    value
+  ) {
+
+    return String(value)
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
+
+  }
+
+
+  /* ========================================================
+     START
+  ======================================================== */
+
+  loadProducts();
+
+</script>
+
+</body>
+</html>
