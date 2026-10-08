@@ -160,6 +160,175 @@ if (
     env
   );
 }
+      /* ============================================================
+   APPROVE CONTRIBUTION
+============================================================ */
+
+async function approveContribution(
+  contributionId,
+  request,
+  env
+) {
+  const key =
+    `CONTRIBUTION:${contributionId}`;
+
+  const contribution =
+    await env.STALL_DATA.get(
+      key,
+      "json"
+    );
+
+  if (!contribution) {
+    return json(
+      {
+        success: false,
+        error: "Contribution not found",
+      },
+      404
+    );
+  }
+
+  if (
+    contribution.status === "approved"
+  ) {
+    return json(
+      {
+        success: false,
+        error: "Contribution is already approved",
+      },
+      400
+    );
+  }
+
+  if (
+    contribution.status === "rejected"
+  ) {
+    return json(
+      {
+        success: false,
+        error:
+          "A rejected contribution cannot be approved",
+      },
+      400
+    );
+  }
+
+  const body =
+    await readJson(request);
+
+  const approvedBy =
+    String(
+      body?.approvedBy ||
+      "Admin"
+    ).trim();
+
+  contribution.status =
+    "approved";
+
+  contribution.approvedAt =
+    new Date().toISOString();
+
+  contribution.approvedBy =
+    approvedBy;
+
+  await env.STALL_DATA.put(
+    key,
+    JSON.stringify(contribution)
+  );
+
+  return json({
+    success: true,
+    message:
+      "Contribution approved",
+    contribution,
+  });
+}
+
+
+/* ============================================================
+   REJECT CONTRIBUTION
+============================================================ */
+
+async function rejectContribution(
+  contributionId,
+  request,
+  env
+) {
+  const key =
+    `CONTRIBUTION:${contributionId}`;
+
+  const contribution =
+    await env.STALL_DATA.get(
+      key,
+      "json"
+    );
+
+  if (!contribution) {
+    return json(
+      {
+        success: false,
+        error: "Contribution not found",
+      },
+      404
+    );
+  }
+
+  if (
+    contribution.status === "approved"
+  ) {
+    return json(
+      {
+        success: false,
+        error:
+          "An approved contribution cannot be rejected",
+      },
+      400
+    );
+  }
+
+  if (
+    contribution.status === "rejected"
+  ) {
+    return json(
+      {
+        success: false,
+        error:
+          "Contribution is already rejected",
+      },
+      400
+    );
+  }
+
+  const body =
+    await readJson(request);
+
+  const rejectedBy =
+    String(
+      body?.rejectedBy ||
+      "Admin"
+    ).trim();
+
+  contribution.status =
+    "rejected";
+
+  contribution.rejectedAt =
+    new Date().toISOString();
+
+  contribution.rejectedBy =
+    rejectedBy;
+
+  await env.STALL_DATA.put(
+    key,
+    JSON.stringify(contribution)
+  );
+
+  return json({
+    success: true,
+    message:
+      "Contribution rejected",
+    contribution,
+  });
+}
       /* ======================================================
          PRODUCTS
       ====================================================== */
