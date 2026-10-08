@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Stall Admin</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      color: #172033;
+    }
+
+    header {
+      background: #172033;
+      color: white;
+      padding: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.75;
+      font-size: 14px;
+    }
+
+    main {
+      width: min(1100px, 94%);
+      margin: 20px auto 50px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #697386;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    input,
+    select {
+      border: 1px solid #d5d9e0;
+      background: white;
+    }
+
+    button {
+      border: 0;
+      background: #172033;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      background: #eef3ff;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    th,
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #edf0f4;
+      text-align: left;
+    }
+
+    th {
+      font-size: 13px;
+      color: #697386;
+    }
+
+    .empty {
+      color: #697386;
+      padding: 20px 0;
+    }
+
+    @media (max-width: 700px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>School Stall Admin</h1>
+  <p>Students, contributions and ownership</p>
+</header>
+
+<main>
+
+  <!-- DASHBOARD STATS -->
+
+  <section class="dashboard-grid">
+
+    <div class="stat">
+      <div class="stat-label">
+        Students
+      </div>
+
+      <div
+        class="stat-value"
+        id="student-count">
+        0
+      </div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">
+        Approved Capital
+      </div>
+
+      <div
+        class="stat-value"
+        id="capital-total">
+        KSh 0
+      </div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">
+        Pending Contributions
+      </div>
+
+      <div
+        class="stat-value"
+        id="pending-count">
+        0
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- ADD STUDENT -->
+
+  <section class="card">
+
+    <h2>Add Student</h2>
+
+    <form id="student-form">
+
+      <div>
+        <label for="student-name">
+          Student name
+        </label>
+
+        <input
+          id="student-name"
+          type="text"
+          placeholder="Enter student name"
+          required
+        >
+      </div>
+
+      <div>
+        <label for="student-role">
+          Role
+        </label>
+
+        <select id="student-role">
+
+          <option value="Member">
+            Member
+          </option>
+
+          <option value="Seller">
+            Seller
+          </option>
+
+          <option value="Treasurer">
+            Treasurer
+          </option>
+
+          <option value="Manager">
+            Manager
+          </option>
+
+          <option value="Admin">
+            Admin
+          </option>
+
+        </select>
+      </div>
+
+      <button type="submit">
+        Add Student
+      </button>
+
+    </form>
+
+    <div
+      id="student-message"
+      class="message">
+    </div>
+
+  </section>
+
+
+  <!-- STUDENTS -->
+
+  <section class="card">
+
+    <h2>Students</h2>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Ownership</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="students-table">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- OWNERSHIP -->
+
+  <section class="card">
+
+    <h2>Ownership</h2>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Student</th>
+            <th>Contribution</th>
+            <th>Ownership</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="ownership-table">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+const API_URL =
+  "https://school-stall-commerce.priorityfixa.workers.dev";
+
+
+const studentForm =
+  document.getElementById("student-form");
+
+const studentMessage =
+  document.getElementById("student-message");
+
+
+/* ==========================================================
+   LOAD DASHBOARD
+========================================================== */
+
+async function loadDashboard() {
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/api/dashboard`
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error || "Dashboard failed"
+      );
+    }
+
+    document.getElementById(
+      "student-count"
+    ).textContent =
+      data.dashboard.students;
+
+    document.getElementById(
+      "capital-total"
+    ).textContent =
+      formatMoney(
+        data.dashboard.totalContributions
+      );
+
+    document.getElementById(
+      "pending-count"
+    ).textContent =
+      data.dashboard.pendingContributions;
+
+  } catch (error) {
+
+    console.error(
+      "Dashboard error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   LOAD STUDENTS
+========================================================== */
+
+async function loadStudents() {
+
+  const table =
+    document.getElementById(
+      "students-table"
+    );
+
+  table.innerHTML = "";
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/api/students`
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error || "Failed to load students"
+      );
+    }
+
+    if (!data.students.length) {
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="4" class="empty">
+            No students added yet.
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+    const ownership =
+      await fetchOwnership();
+
+    data.students.forEach(
+      student => {
+
+        const owner =
+          ownership.find(
+            item =>
+              item.studentId === student.id
+          );
+
+        const percentage =
+          owner
+            ? owner.ownershipPercentage
+            : 0;
+
+        const row =
+          document.createElement("tr");
+
+        row.innerHTML = `
+
+          <td>
+            ${escapeHtml(student.name)}
+          </td>
+
+          <td>
+            ${escapeHtml(student.role)}
+          </td>
+
+          <td>
+            ${student.active
+              ? "Active"
+              : "Inactive"}
+          </td>
+
+          <td>
+            ${percentage}%
+          </td>
+
+        `;
+
+        table.appendChild(row);
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Students error:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   LOAD OWNERSHIP
+========================================================== */
+
+async function fetchOwnership() {
+
+  const response =
+    await fetch(
+      `${API_URL}/api/students/ownership`
+    );
+
+  const data =
+    await response.json();
+
+  if (!data.success) {
+    throw new Error(
+      data.error || "Ownership failed"
+    );
+  }
+
+  renderOwnership(
+    data.ownership
+  );
+
+  return data.ownership;
+
+}
+
+
+function renderOwnership(
+  ownership
+) {
+
+  const table =
+    document.getElementById(
+      "ownership-table"
+    );
+
+  table.innerHTML = "";
+
+  if (!ownership.length) {
+
+    table.innerHTML = `
+      <tr>
+        <td colspan="3" class="empty">
+          No approved contributions yet.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  ownership.forEach(
+    item => {
+
+      const row =
+        document.createElement("tr");
+
+      row.innerHTML = `
+
+        <td>
+          ${escapeHtml(
+            item.studentName
+          )}
+        </td>
+
+        <td>
+          ${formatMoney(
+            item.contributionValue
+          )}
+        </td>
+
+        <td>
+          ${item.ownershipPercentage}%
+        </td>
+
+      `;
+
+      table.appendChild(row);
+
+    }
+  );
+
+}
+
+
+/* ==========================================================
+   ADD STUDENT
+========================================================== */
+
+studentForm.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const name =
+      document.getElementById(
+        "student-name"
+      ).value.trim();
+
+    const role =
+      document.getElementById(
+        "student-role"
+      ).value;
+
+    if (!name) {
+      return;
+    }
+
+    studentMessage.style.display =
+      "block";
+
+    studentMessage.textContent =
+      "Adding student...";
+
+    try {
+
+      const response =
+        await fetch(
+          `${API_URL}/api/students`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              name,
+              role
+            })
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.error ||
+          "Could not add student"
+        );
+      }
+
+      studentMessage.textContent =
+        `${name} added successfully.`;
+
+      studentForm.reset();
+
+      await refresh();
+
+    } catch (error) {
+
+      console.error(
+        "Add student error:",
+        error
+      );
+
+      studentMessage.textContent =
+        error.message;
+
+    }
+
+  }
+);
+
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function formatMoney(
+  amount
+) {
+
+  return `KSh ${Number(
+    amount || 0
+  ).toLocaleString()}`;
+
+}
+
+
+function escapeHtml(
+  value
+) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+/* ==========================================================
+   REFRESH
+========================================================== */
+
+async function refresh() {
+
+  await loadDashboard();
+
+  await loadStudents();
+
+}
+
+
+/* ==========================================================
+   START
+========================================================== */
+
+refresh();
+
+</script>
+
+</body>
+</html>
