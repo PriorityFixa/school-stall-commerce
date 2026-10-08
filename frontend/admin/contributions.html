@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Contributions | School Stall</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6f8;
+      color: #172033;
+    }
+
+    header {
+      background: #172033;
+      color: white;
+      padding: 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: .75;
+    }
+
+    main {
+      width: min(1100px, 94%);
+      margin: 20px auto 50px;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: #172033;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    form {
+      display: grid;
+      gap: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    input,
+    select,
+    textarea {
+      border: 1px solid #d5d9e0;
+      background: white;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    button {
+      border: 0;
+      background: #172033;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .message {
+      display: none;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #eef3ff;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 850px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 12px 10px;
+      border-bottom: 1px solid #edf0f4;
+    }
+
+    th {
+      font-size: 13px;
+      color: #697386;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 5px 8px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .pending {
+      background: #fff3cd;
+      color: #7a5b00;
+    }
+
+    .approved {
+      background: #dff5e5;
+      color: #176b36;
+    }
+
+    .rejected {
+      background: #fde2e2;
+      color: #9a1c1c;
+    }
+
+    .empty {
+      color: #697386;
+      padding: 20px 0;
+    }
+
+    @media (max-width: 700px) {
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Contributions</h1>
+  <p>Record and approve student contributions</p>
+</header>
+
+<main>
+
+  <a class="back" href="index.html">
+    ← Back to Admin
+  </a>
+
+  <!-- ADD CONTRIBUTION -->
+
+  <section class="card">
+
+    <h2>Record Contribution</h2>
+
+    <form id="contribution-form">
+
+      <div>
+        <label for="student">
+          Student
+        </label>
+
+        <select id="student" required>
+          <option value="">
+            Loading students...
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <label for="type">
+          Contribution type
+        </label>
+
+        <select id="type" required>
+
+          <option value="">
+            Select type
+          </option>
+
+          <option value="cash">
+            Cash
+          </option>
+
+          <option value="goods">
+            Goods / Stock
+          </option>
+
+          <option value="labour">
+            Labour
+          </option>
+
+          <option value="service">
+            Service
+          </option>
+
+        </select>
+      </div>
+
+      <div>
+        <label for="description">
+          Description
+        </label>
+
+        <textarea
+          id="description"
+          placeholder="Example: KSh 1,000 cash contribution or 20 packets of biscuits"
+          required
+        ></textarea>
+      </div>
+
+      <div>
+        <label for="value">
+          Agreed contribution value (KSh)
+        </label>
+
+        <input
+          id="value"
+          type="number"
+          min="1"
+          step="0.01"
+          placeholder="Example: 1000"
+          required
+        >
+      </div>
+
+      <button type="submit">
+        Submit Contribution
+      </button>
+
+    </form>
+
+    <div
+      id="message"
+      class="message">
+    </div>
+
+  </section>
+
+
+  <!-- CONTRIBUTIONS -->
+
+  <section class="card">
+
+    <h2>Contribution History</h2>
+
+    <div class="table-wrapper">
+
+      <table>
+
+        <thead>
+
+          <tr>
+            <th>Student</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Value</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+
+        </thead>
+
+        <tbody id="contributions-table">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<script>
+
+const API_URL =
+  "https://school-stall-commerce.priorityfixa.workers.dev";
+
+
+const studentSelect =
+  document.getElementById("student");
+
+const form =
+  document.getElementById(
+    "contribution-form"
+  );
+
+const message =
+  document.getElementById("message");
+
+
+/* ==========================================================
+   LOAD STUDENTS
+========================================================== */
+
+async function loadStudents() {
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/api/students`
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error ||
+        "Could not load students"
+      );
+    }
+
+    studentSelect.innerHTML = `
+      <option value="">
+        Select student
+      </option>
+    `;
+
+    data.students.forEach(
+      student => {
+
+        const option =
+          document.createElement(
+            "option"
+          );
+
+        option.value =
+          student.id;
+
+        option.textContent =
+          student.name;
+
+        studentSelect.appendChild(
+          option
+        );
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    studentSelect.innerHTML = `
+      <option value="">
+        Failed to load students
+      </option>
+    `;
+
+  }
+
+}
+
+
+/* ==========================================================
+   LOAD CONTRIBUTIONS
+========================================================== */
+
+async function loadContributions() {
+
+  const table =
+    document.getElementById(
+      "contributions-table"
+    );
+
+  table.innerHTML = "";
+
+  try {
+
+    const response =
+      await fetch(
+        `${API_URL}/api/contributions`
+      );
+
+    const data =
+      await response.json();
+
+    if (!data.success) {
+      throw new Error(
+        data.error ||
+        "Could not load contributions"
+      );
+    }
+
+    if (!data.contributions.length) {
+
+      table.innerHTML = `
+        <tr>
+          <td
+            colspan="6"
+            class="empty">
+
+            No contributions recorded yet.
+
+          </td>
+        </tr>
+      `;
+
+      return;
+    }
+
+    data.contributions.forEach(
+      contribution => {
+
+        const row =
+          document.createElement("tr");
+
+        const date =
+          new Date(
+            contribution.submittedAt
+          ).toLocaleDateString();
+
+        row.innerHTML = `
+
+          <td>
+            ${escapeHtml(
+              contribution.studentName
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              contribution.type
+            )}
+          </td>
+
+          <td>
+            ${escapeHtml(
+              contribution.description
+            )}
+          </td>
+
+          <td>
+            KSh ${Number(
+              contribution.agreedValue || 0
+            ).toLocaleString()}
+          </td>
+
+          <td>
+            <span class="status ${contribution.status}">
+              ${escapeHtml(
+                contribution.status
+              )}
+            </span>
+          </td>
+
+          <td>
+            ${date}
+          </td>
+
+        `;
+
+        table.appendChild(row);
+
+      }
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+
+}
+
+
+/* ==========================================================
+   SUBMIT CONTRIBUTION
+========================================================== */
+
+form.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+    const studentId =
+      studentSelect.value;
+
+    const type =
+      document.getElementById(
+        "type"
+      ).value;
+
+    const description =
+      document.getElementById(
+        "description"
+      ).value.trim();
+
+    const value =
+      Number(
+        document.getElementById(
+          "value"
+        ).value
+      );
+
+    if (!studentId) {
+
+      showMessage(
+        "Please select a student."
+      );
+
+      return;
+
+    }
+
+    if (!type) {
+
+      showMessage(
+        "Please select a contribution type."
+      );
+
+      return;
+
+    }
+
+    if (!description) {
+
+      showMessage(
+        "Please enter a description."
+      );
+
+      return;
+
+    }
+
+    if (!Number.isFinite(value) || value <= 0) {
+
+      showMessage(
+        "Enter a valid contribution value."
+      );
+
+      return;
+
+    }
+
+    showMessage(
+      "Submitting contribution..."
+    );
+
+    try {
+
+      const response =
+        await fetch(
+          `${API_URL}/api/contributions`,
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify({
+              studentId,
+              type,
+              description,
+              value
+            })
+          }
+        );
+
+      const data =
+        await response.json();
+
+      if (!data.success) {
+        throw new Error(
+          data.error ||
+          "Could not submit contribution"
+        );
+      }
+
+      showMessage(
+        "Contribution submitted and is waiting for approval."
+      );
+
+      form.reset();
+
+      await loadContributions();
+
+    } catch (error) {
+
+      console.error(error);
+
+      showMessage(
+        error.message
+      );
+
+    }
+
+  }
+);
+
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function showMessage(text) {
+
+  message.style.display =
+    "block";
+
+  message.textContent =
+    text;
+
+}
+
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+}
+
+
+/* ==========================================================
+   START
+========================================================== */
+
+loadStudents();
+
+loadContributions();
+
+</script>
+
+</body>
+</html>
