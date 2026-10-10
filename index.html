@@ -1,10 +1,11 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Stall Admin</title>
+  <title>School Stall Admin</title>
 
   <style>
     * {
@@ -40,6 +41,48 @@
       margin: 20px auto 50px;
     }
 
+    /* QUICK NAVIGATION */
+
+    .quick-nav {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .quick-nav h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+    }
+
+    .nav-links {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #172033;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .nav-link:hover {
+      background: #2b3d5d;
+      transform: translateY(-2px);
+    }
+
     .dashboard-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -51,7 +94,7 @@
       background: white;
       border-radius: 12px;
       padding: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
 
     .stat-label {
@@ -70,7 +113,7 @@
       border-radius: 14px;
       padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
 
     .card h2 {
@@ -114,12 +157,18 @@
       opacity: 0.9;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .message {
       padding: 12px;
       border-radius: 8px;
       background: #eef3ff;
       margin-top: 10px;
       display: none;
+      overflow-wrap: anywhere;
     }
 
     .table-wrapper {
@@ -154,8 +203,19 @@
         grid-template-columns: 1fr;
       }
 
-      .card {
+      .nav-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card,
+      .quick-nav {
         padding: 16px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .nav-links {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -170,48 +230,60 @@
 
 <main>
 
+  <!-- QUICK NAVIGATION -->
+
+  <section class="quick-nav">
+    <h2>Quick Navigation</h2>
+
+    <nav class="nav-links" aria-label="Management pages">
+
+      <a
+        class="nav-link"
+        href="frontend/admin/contributions.html">
+        Contributions
+      </a>
+
+      <a
+        class="nav-link"
+        href="frontend/admin/orders.html">
+        Orders
+      </a>
+
+      <a
+        class="nav-link"
+        href="frontend/admin/products.html">
+        Products
+      </a>
+
+      <a
+        class="nav-link"
+        href="frontend/seller.html">
+        Seller Dashboard
+      </a>
+
+    </nav>
+  </section>
+
   <!-- DASHBOARD STATS -->
 
   <section class="dashboard-grid">
 
     <div class="stat">
-      <div class="stat-label">
-        Students
-      </div>
-
-      <div
-        class="stat-value"
-        id="student-count">
-        0
-      </div>
+      <div class="stat-label">Students</div>
+      <div class="stat-value" id="student-count">0</div>
     </div>
 
     <div class="stat">
-      <div class="stat-label">
-        Approved Capital
-      </div>
-
-      <div
-        class="stat-value"
-        id="capital-total">
-        KSh 0
-      </div>
+      <div class="stat-label">Approved Capital</div>
+      <div class="stat-value" id="capital-total">KSh 0</div>
     </div>
 
     <div class="stat">
-      <div class="stat-label">
-        Pending Contributions
-      </div>
-
-      <div
-        class="stat-value"
-        id="pending-count">
-        0
-      </div>
+      <div class="stat-label">Pending Contributions</div>
+      <div class="stat-value" id="pending-count">0</div>
     </div>
 
   </section>
-
 
   <!-- ADD STUDENT -->
 
@@ -222,10 +294,7 @@
     <form id="student-form">
 
       <div>
-        <label for="student-name">
-          Student name
-        </label>
-
+        <label for="student-name">Student name</label>
         <input
           id="student-name"
           type="text"
@@ -235,36 +304,18 @@
       </div>
 
       <div>
-        <label for="student-role">
-          Role
-        </label>
+        <label for="student-role">Role</label>
 
         <select id="student-role">
-
-          <option value="Member">
-            Member
-          </option>
-
-          <option value="Seller">
-            Seller
-          </option>
-
-          <option value="Treasurer">
-            Treasurer
-          </option>
-
-          <option value="Manager">
-            Manager
-          </option>
-
-          <option value="Admin">
-            Admin
-          </option>
-
+          <option value="Member">Member</option>
+          <option value="Seller">Seller</option>
+          <option value="Treasurer">Treasurer</option>
+          <option value="Manager">Manager</option>
+          <option value="Admin">Admin</option>
         </select>
       </div>
 
-      <button type="submit">
+      <button id="add-student-button" type="submit">
         Add Student
       </button>
 
@@ -272,11 +323,12 @@
 
     <div
       id="student-message"
-      class="message">
+      class="message"
+      role="status"
+      aria-live="polite">
     </div>
 
   </section>
-
 
   <!-- STUDENTS -->
 
@@ -285,30 +337,25 @@
     <h2>Students</h2>
 
     <div class="table-wrapper">
-
       <table>
-
         <thead>
-
           <tr>
             <th>Name</th>
             <th>Role</th>
             <th>Status</th>
             <th>Ownership</th>
           </tr>
-
         </thead>
 
         <tbody id="students-table">
-
+          <tr>
+            <td colspan="4" class="empty">Loading students...</td>
+          </tr>
         </tbody>
-
       </table>
-
     </div>
 
   </section>
-
 
   <!-- OWNERSHIP -->
 
@@ -317,37 +364,30 @@
     <h2>Ownership</h2>
 
     <div class="table-wrapper">
-
       <table>
-
         <thead>
-
           <tr>
             <th>Student</th>
             <th>Contribution</th>
             <th>Ownership</th>
           </tr>
-
         </thead>
 
         <tbody id="ownership-table">
-
+          <tr>
+            <td colspan="3" class="empty">Loading ownership...</td>
+          </tr>
         </tbody>
-
       </table>
-
     </div>
 
   </section>
 
 </main>
 
-
 <script>
-
 const API_URL =
   "https://school-stall-commerce.priorityfixa.workers.dev";
-
 
 const studentForm =
   document.getElementById("student-form");
@@ -355,55 +395,53 @@ const studentForm =
 const studentMessage =
   document.getElementById("student-message");
 
+const addStudentButton =
+  document.getElementById("add-student-button");
+
+
+/* ==========================================================
+   API HELPER
+========================================================== */
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_URL}${path}`, options);
+
+  const data = await response.json();
+
+  if (!response.ok || !data.success) {
+    throw new Error(
+      data.error || `Request failed (${response.status})`
+    );
+  }
+
+  return data;
+}
+
 
 /* ==========================================================
    LOAD DASHBOARD
 ========================================================== */
 
 async function loadDashboard() {
-
   try {
+    const data = await apiRequest("/api/dashboard");
 
-    const response =
-      await fetch(
-        `${API_URL}/api/dashboard`
-      );
-
-    const data =
-      await response.json();
-
-    if (!data.success) {
-      throw new Error(
-        data.error || "Dashboard failed"
-      );
-    }
-
-    document.getElementById(
-      "student-count"
-    ).textContent =
+    document.getElementById("student-count").textContent =
       data.dashboard.students;
 
-    document.getElementById(
-      "capital-total"
-    ).textContent =
-      formatMoney(
-        data.dashboard.totalContributions
-      );
+    document.getElementById("capital-total").textContent =
+      formatMoney(data.dashboard.totalContributions);
 
-    document.getElementById(
-      "pending-count"
-    ).textContent =
+    document.getElementById("pending-count").textContent =
       data.dashboard.pendingContributions;
 
   } catch (error) {
+    console.error("Dashboard error:", error);
 
-    console.error(
-      "Dashboard error:",
-      error
-    );
-
+    document.getElementById("student-count").textContent = "—";
+    document.getElementById("capital-total").textContent = "—";
+    document.getElementById("pending-count").textContent = "—";
   }
-
 }
 
 
@@ -412,32 +450,17 @@ async function loadDashboard() {
 ========================================================== */
 
 async function loadStudents() {
-
-  const table =
-    document.getElementById(
-      "students-table"
-    );
-
-  table.innerHTML = "";
+  const table = document.getElementById("students-table");
 
   try {
+    const data = await apiRequest("/api/students");
+    const students = data.students || [];
 
-    const response =
-      await fetch(
-        `${API_URL}/api/students`
-      );
+    const ownership = await fetchOwnership();
 
-    const data =
-      await response.json();
+    table.innerHTML = "";
 
-    if (!data.success) {
-      throw new Error(
-        data.error || "Failed to load students"
-      );
-    }
-
-    if (!data.students.length) {
-
+    if (students.length === 0) {
       table.innerHTML = `
         <tr>
           <td colspan="4" class="empty">
@@ -445,66 +468,41 @@ async function loadStudents() {
           </td>
         </tr>
       `;
-
       return;
     }
 
-    const ownership =
-      await fetchOwnership();
+    students.forEach(student => {
+      const owner = ownership.find(
+        item => item.studentId === student.id
+      );
 
-    data.students.forEach(
-      student => {
+      const percentage = owner
+        ? owner.ownershipPercentage
+        : 0;
 
-        const owner =
-          ownership.find(
-            item =>
-              item.studentId === student.id
-          );
+      const row = document.createElement("tr");
 
-        const percentage =
-          owner
-            ? owner.ownershipPercentage
-            : 0;
+      row.innerHTML = `
+        <td>${escapeHtml(student.name)}</td>
+        <td>${escapeHtml(student.role)}</td>
+        <td>${student.active ? "Active" : "Inactive"}</td>
+        <td>${escapeHtml(percentage)}%</td>
+      `;
 
-        const row =
-          document.createElement("tr");
-
-        row.innerHTML = `
-
-          <td>
-            ${escapeHtml(student.name)}
-          </td>
-
-          <td>
-            ${escapeHtml(student.role)}
-          </td>
-
-          <td>
-            ${student.active
-              ? "Active"
-              : "Inactive"}
-          </td>
-
-          <td>
-            ${percentage}%
-          </td>
-
-        `;
-
-        table.appendChild(row);
-
-      }
-    );
+      table.appendChild(row);
+    });
 
   } catch (error) {
+    console.error("Students error:", error);
 
-    console.error(
-      "Students error:",
-      error
-    );
-
+    table.innerHTML = `
+      <tr>
+        <td colspan="4" class="empty">
+          Could not load students. Please refresh the page.
+        </td>
+      </tr>
+    `;
   }
-
 }
 
 
@@ -513,43 +511,22 @@ async function loadStudents() {
 ========================================================== */
 
 async function fetchOwnership() {
+  const data = await apiRequest("/api/students/ownership");
 
-  const response =
-    await fetch(
-      `${API_URL}/api/students/ownership`
-    );
+  const ownership = data.ownership || [];
 
-  const data =
-    await response.json();
+  renderOwnership(ownership);
 
-  if (!data.success) {
-    throw new Error(
-      data.error || "Ownership failed"
-    );
-  }
-
-  renderOwnership(
-    data.ownership
-  );
-
-  return data.ownership;
-
+  return ownership;
 }
 
 
-function renderOwnership(
-  ownership
-) {
-
-  const table =
-    document.getElementById(
-      "ownership-table"
-    );
+function renderOwnership(ownership) {
+  const table = document.getElementById("ownership-table");
 
   table.innerHTML = "";
 
-  if (!ownership.length) {
-
+  if (ownership.length === 0) {
     table.innerHTML = `
       <tr>
         <td colspan="3" class="empty">
@@ -557,42 +534,20 @@ function renderOwnership(
         </td>
       </tr>
     `;
-
     return;
-
   }
 
-  ownership.forEach(
-    item => {
+  ownership.forEach(item => {
+    const row = document.createElement("tr");
 
-      const row =
-        document.createElement("tr");
+    row.innerHTML = `
+      <td>${escapeHtml(item.studentName)}</td>
+      <td>${formatMoney(item.contributionValue)}</td>
+      <td>${escapeHtml(item.ownershipPercentage)}%</td>
+    `;
 
-      row.innerHTML = `
-
-        <td>
-          ${escapeHtml(
-            item.studentName
-          )}
-        </td>
-
-        <td>
-          ${formatMoney(
-            item.contributionValue
-          )}
-        </td>
-
-        <td>
-          ${item.ownershipPercentage}%
-        </td>
-
-      `;
-
-      table.appendChild(row);
-
-    }
-  );
-
+    table.appendChild(row);
+  });
 }
 
 
@@ -600,111 +555,65 @@ function renderOwnership(
    ADD STUDENT
 ========================================================== */
 
-studentForm.addEventListener(
-  "submit",
-  async event => {
+studentForm.addEventListener("submit", async event => {
+  event.preventDefault();
 
-    event.preventDefault();
+  const name = document
+    .getElementById("student-name")
+    .value.trim();
 
-    const name =
-      document.getElementById(
-        "student-name"
-      ).value.trim();
+  const role = document.getElementById("student-role").value;
 
-    const role =
-      document.getElementById(
-        "student-role"
-      ).value;
+  if (!name) return;
 
-    if (!name) {
-      return;
-    }
+  studentMessage.style.display = "block";
+  studentMessage.textContent = "Adding student...";
+  addStudentButton.disabled = true;
 
-    studentMessage.style.display =
-      "block";
+  try {
+    await apiRequest("/api/students", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, role })
+    });
 
     studentMessage.textContent =
-      "Adding student...";
+      `${name} added successfully.`;
 
-    try {
+    studentForm.reset();
 
-      const response =
-        await fetch(
-          `${API_URL}/api/students`,
-          {
-            method: "POST",
+    await refresh();
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+  } catch (error) {
+    console.error("Add student error:", error);
 
-            body: JSON.stringify({
-              name,
-              role
-            })
-          }
-        );
+    studentMessage.textContent =
+      error.message || "Could not add student.";
 
-      const data =
-        await response.json();
-
-      if (!data.success) {
-        throw new Error(
-          data.error ||
-          "Could not add student"
-        );
-      }
-
-      studentMessage.textContent =
-        `${name} added successfully.`;
-
-      studentForm.reset();
-
-      await refresh();
-
-    } catch (error) {
-
-      console.error(
-        "Add student error:",
-        error
-      );
-
-      studentMessage.textContent =
-        error.message;
-
-    }
-
+  } finally {
+    addStudentButton.disabled = false;
   }
-);
+});
 
 
 /* ==========================================================
    HELPERS
 ========================================================== */
 
-function formatMoney(
-  amount
-) {
-
-  return `KSh ${Number(
-    amount || 0
-  ).toLocaleString()}`;
-
+function formatMoney(amount) {
+  return `KSh ${Number(amount || 0).toLocaleString("en-KE")}`;
 }
 
 
-function escapeHtml(
-  value
-) {
-
-  return String(value)
+function escapeHtml(value) {
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-
 }
 
 
@@ -713,11 +622,10 @@ function escapeHtml(
 ========================================================== */
 
 async function refresh() {
-
-  await loadDashboard();
-
-  await loadStudents();
-
+  await Promise.all([
+    loadDashboard(),
+    loadStudents()
+  ]);
 }
 
 
@@ -726,8 +634,8 @@ async function refresh() {
 ========================================================== */
 
 refresh();
-
 </script>
 
 </body>
 </html>
+```
