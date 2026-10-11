@@ -1,4 +1,3 @@
-
 const STALL_API_URL =
   "https://school-stall-commerce.priorityfixa.workers.dev";
 
@@ -14,6 +13,9 @@ const referenceInput = document.getElementById("paymentReference");
 const recordedByInput = document.getElementById("recordedBy");
 
 let outstandingOrders = [];
+
+// Reuse the admin PIN if it was already entered on another admin page.
+pinInput.value = sessionStorage.getItem("stallAdminPin") || "";
 
 function money(value) {
   return "KSh " + Number(value || 0).toLocaleString("en-KE", {
@@ -31,7 +33,7 @@ async function apiRequest(path, options = {}) {
   const pin = pinInput.value.trim();
 
   if (!pin) {
-    throw new Error("Enter the payment PIN first.");
+    throw new Error("Enter the PIN first.");
   }
 
   const response = await fetch(STALL_API_URL + path, {
@@ -91,7 +93,7 @@ function renderOrders() {
     card.innerHTML = `
       <div>
         <strong>${escapeHtml(order.id)}</strong>
-        <p>${escapeHtml(order.customerName || "Customer not specified")}</p>
+        <p>${escapeHtml(order.customerName || "Customer not specified")}${order.customerClass ? " · " + escapeHtml(order.customerClass) : ""}</p>
         <small>${escapeHtml(order.sellerName || "Seller not specified")}</small>
       </div>
       <div class="order-amounts">
@@ -100,8 +102,7 @@ function renderOrders() {
         <strong>Balance: ${money(order.balance)}</strong>
         <small>${escapeHtml(order.paymentStatus)}</small>
       </div>
-      <button type="button" class="choose-order"
-        data-order-id="${escapeHtml(order.id)}">
+      <button type="button" class="choose-order">
         Record payment
       </button>
     `;
@@ -138,19 +139,23 @@ function updateSelectedOrder() {
     `You may record a smaller amount for a partial payment.`;
 }
 
-async function loadOutstandingOrders() {
+// showStatus = false keeps a "Payment recorded" message on screen
+// after the list is refreshed.
+async function loadOutstandingOrders(showStatus = true) {
   try {
-    showMessage("Loading outstanding orders…");
+    if (showStatus) showMessage("Loading outstanding orders…");
 
     const result = await apiRequest("/api/orders/unpaid");
 
     outstandingOrders = result.orders || [];
     renderOrders();
 
-    showMessage(
-      `Loaded ${outstandingOrders.length} outstanding order(s).`,
-      "success"
-    );
+    if (showStatus) {
+      showMessage(
+        `Loaded ${outstandingOrders.length} outstanding order(s).`,
+        "success"
+      );
+    }
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -187,6 +192,18 @@ paymentForm.addEventListener("submit", async event => {
   }
 
   const method = methodInput.value;
+  const reference = referenceInput.value.trim();
+  const recordedBy = recordedByInput.value.trim();
+
+  if (!recordedBy) {
+    showMessage("Enter the name of the person recording this payment.", "error");
+    return;
+  }
+
+  if (method === "mpesa" && !reference) {
+    showMessage("Enter the M-Pesa receipt number before recording the payment.", "error");
+    return;
+  }
 
   if (
     method === "mpesa" &&
@@ -207,25 +224,23 @@ paymentForm.addEventListener("submit", async event => {
       "/api/orders/" + encodeURIComponent(orderId) + "/payments",
       {
         method: "POST",
-        body: JSON.stringify({
-          amount,
-          method,
-          reference: referenceInput.value.trim(),
-          recordedBy: recordedByInput.value.trim()
-        })
+        body: JSON.stringify({ amount, method, reference, recordedBy })
       }
     );
 
     const updated = result.order;
-
-    showMessage(
+    const successText =
       `${result.message} Paid: ${money(updated.amountPaid)}. ` +
-      `Remaining balance: ${money(updated.balance)}.`,
-      "success"
-    );
+      `Remaining balance: ${money(updated.balance)}.`;
 
+    // Keep the admin's name for the next payment.
     paymentForm.reset();
-    await loadOutstandingOrders();
+    recordedByInput.value = recordedBy;
+
+    await loadOutstandingOrders(false);
+
+    // Show the confirmation after the list refresh so it is not overwritten.
+    showMessage(successText, "success");
   } catch (error) {
     showMessage(error.message, "error");
   } finally {
@@ -235,5 +250,5 @@ paymentForm.addEventListener("submit", async event => {
 
 document.getElementById("refreshOrders").addEventListener(
   "click",
-  loadOutstandingOrders
+  () => loadOutstandingOrders(true)
 );
