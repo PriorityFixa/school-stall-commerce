@@ -1,35 +1,28 @@
-
 /**
  * ============================================================
- * SCHOOL STALL COMMERCE API
+ * SCHOOL STALL COMMERCE API  (updated)
  * ============================================================
  *
- * Features:
- * - Students
- * - Contributions, approval and rejection
- * - Ownership calculations
- * - Products
- * - Inventory and history
- * - Orders and stock deduction
- * - Pending and partially paid orders
- * - Later payments and payment history
- * - Expenses
- * - Dashboard
+ * Required KV binding : STALL_DATA
+ * Required secrets    : STALL_ADMIN_PIN    (full admin access)
+ *                       STALL_PAYMENT_PIN  (seller access: cash orders and
+ *                                           later payments only)
  *
- * Required KV binding: STALL_DATA
- * Required secret for payment routes: STALL_PAYMENT_PIN
- *
- * IMPORTANT:
- * Later payments update the existing order only.
- * They do not create orders or deduct stock again.
+ * ACCESS LEVELS
+ *   public : GET  /api/health
+ *            GET  /api/products/public   (no cost prices)
+ *            POST /api/orders            (M-Pesa / credit only; cash needs a PIN)
+ *   seller : GET  /api/orders/unpaid
+ *            POST /api/orders/:id/payments
+ *            (seller PIN or admin PIN in the X-Stall-Pin header)
+ *   admin  : everything else (admin PIN in the X-Stall-Pin header)
  * ============================================================
  */
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
-  "Access-Control-Allow-Headers":
-    "Content-Type, Authorization, X-Stall-Pin",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Stall-Pin",
   "Content-Type": "application/json"
 };
 
@@ -60,6 +53,57 @@ function errorResponse(message, status = 400) {
 }
 
 /* ============================================================
+   ACCESS CONTROL
+============================================================ */
+
+function safeEqual(a, b) {
+  a = String(a);
+  b = String(b);
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
+}
+
+// Returns "admin", "seller" or null depending on the PIN supplied.
+function getRole(request, env) {
+  const pin = (request.headers.get("X-Stall-Pin") || "").trim();
+  if (!pin) return null;
+
+  if (env.STALL_ADMIN_PIN && safeEqual(pin, env.STALL_ADMIN_PIN)) {
+    return "admin";
+  }
+
+  if (env.STALL_PAYMENT_PIN && safeEqual(pin, env.STALL_PAYMENT_PIN)) {
+    return "seller";
+  }
+
+  return null;
+}
+
+function requiredAccess(method, path) {
+  if (method === "GET" && (path === "/" || path === "/api/health" || path === "/api/products/public")) {
+    return "public";
+  }
+
+  if (method === "POST" && path === "/api/orders") {
+    return "public";
+  }
+
+  if (method === "GET" && path === "/api/orders/unpaid") {
+    return "seller";
+  }
+
+  if (method === "POST" && /^\/api\/orders\/[^/]+\/payments$/.test(path)) {
+    return "seller";
+  }
+
+  return "admin";
+}
+
+/* ============================================================
    MAIN WORKER AND ROUTES
 ============================================================ */
 
@@ -70,18 +114,37 @@ export default {
     const method = request.method;
 
     if (method === "OPTIONS") {
-      return new Response(null, {
-        status: 204,
-        headers: CORS_HEADERS
-      });
+      return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
     try {
       if (!env.STALL_DATA) {
-        return json({
-          success: false,
-          error: "Missing Cloudflare KV binding: STALL_DATA"
-        }, 500);
+        return errorResponse("Missing Cloudflare KV binding: STALL_DATA", 500);
+      }
+
+      const access = requiredAccess(method, path);
+      const role = getRole(request, env);
+
+      if (access === "admin") {
+        if (!env.STALL_ADMIN_PIN) {
+          return errorResponse(
+            "Admin access is not configured. Set STALL_ADMIN_PIN in Cloudflare Worker secrets.",
+            503
+          );
+        }
+        if (role !== "admin") {
+          return errorResponse("Invalid or missing admin PIN", 401);
+        }
+      } else if (access === "seller") {
+        if (!env.STALL_PAYMENT_PIN && !env.STALL_ADMIN_PIN) {
+          return errorResponse(
+            "Payment access is not configured. Set STALL_PAYMENT_PIN in Cloudflare Worker secrets.",
+            503
+          );
+        }
+        if (!role) {
+          return errorResponse("Invalid or missing PIN", 401);
+        }
       }
 
       /* BASIC */
@@ -90,19 +153,7 @@ export default {
         return json({
           success: true,
           service: "School Stall Commerce API",
-          status: "online",
-          endpoints: [
-            "/api/health",
-            "/api/students",
-            "/api/students/ownership",
-            "/api/contributions",
-            "/api/products",
-            "/api/inventory",
-            "/api/orders",
-            "/api/orders/unpaid",
-            "/api/expenses",
-            "/api/dashboard"
-          ]
+          status: "online"
         });
       }
 
@@ -117,152 +168,69 @@ export default {
 
       /* STUDENTS */
 
-      if (path === "/api/students" && method === "GET") {
-        return getStudents(env);
-      }
-
-      if (path === "/api/students" && method === "POST") {
-        return createStudent(request, env);
-      }
-
-      if (
-        path === "/api/students/ownership" &&
-        method === "GET"
-      ) {
-        return getOwnership(env);
-      }
+      if (path === "/api/students" && method === "GET") return getStudents(env);
+      if (path === "/api/students" && method === "POST") return createStudent(request, env);
+      if (path === "/api/students/ownership" && method === "GET") return getOwnership(env);
 
       /* CONTRIBUTIONS */
 
-      if (path === "/api/contributions" && method === "GET") {
-        return getContributions(env);
-      }
+      if (path === "/api/contributions" && method === "GET") return getContributions(env);
+      if (path === "/api/contributions" && method === "POST") return createContribution(request, env);
 
-      if (path === "/api/contributions" && method === "POST") {
-        return createContribution(request, env);
-      }
-
-      const approveMatch = path.match(
-        /^\/api\/contributions\/([^/]+)\/approve$/
-      );
-
+      const approveMatch = path.match(/^\/api\/contributions\/([^/]+)\/approve$/);
       if (approveMatch && method === "POST") {
-        return approveContribution(
-          decodeURIComponent(approveMatch[1]),
-          request,
-          env
-        );
+        return approveContribution(decodeURIComponent(approveMatch[1]), request, env);
       }
 
-      const rejectMatch = path.match(
-        /^\/api\/contributions\/([^/]+)\/reject$/
-      );
-
+      const rejectMatch = path.match(/^\/api\/contributions\/([^/]+)\/reject$/);
       if (rejectMatch && method === "POST") {
-        return rejectContribution(
-          decodeURIComponent(rejectMatch[1]),
-          request,
-          env
-        );
+        return rejectContribution(decodeURIComponent(rejectMatch[1]), request, env);
       }
 
       /* PRODUCTS */
 
-      if (path === "/api/products" && method === "GET") {
-        return getProducts(env);
-      }
+      if (path === "/api/products/public" && method === "GET") return getPublicProducts(env);
+      if (path === "/api/products" && method === "GET") return getProducts(env);
+      if (path === "/api/products" && method === "POST") return createProduct(request, env);
 
-      if (path === "/api/products" && method === "POST") {
-        return createProduct(request, env);
-      }
-
-      const productMatch = path.match(
-        /^\/api\/products\/([^/]+)$/
-      );
-
+      const productMatch = path.match(/^\/api\/products\/([^/]+)$/);
       if (productMatch && method === "PUT") {
-        return updateProduct(
-          decodeURIComponent(productMatch[1]),
-          request,
-          env
-        );
+        return updateProduct(decodeURIComponent(productMatch[1]), request, env);
       }
 
       /* INVENTORY */
 
-      if (path === "/api/inventory" && method === "GET") {
-        return getInventoryHistory(env);
-      }
+      if (path === "/api/inventory" && method === "GET") return getInventoryHistory(env);
 
-      const inventoryMatch = path.match(
-        /^\/api\/inventory\/([^/]+)\/adjust$/
-      );
-
+      const inventoryMatch = path.match(/^\/api\/inventory\/([^/]+)\/adjust$/);
       if (inventoryMatch && method === "POST") {
-        return adjustInventory(
-          decodeURIComponent(inventoryMatch[1]),
-          request,
-          env
-        );
+        return adjustInventory(decodeURIComponent(inventoryMatch[1]), request, env);
       }
 
       /* ORDERS */
 
-      if (path === "/api/orders" && method === "GET") {
-        return getOrders(env);
-      }
+      if (path === "/api/orders" && method === "GET") return getOrders(env);
+      if (path === "/api/orders" && method === "POST") return createOrder(request, env, role);
+      if (path === "/api/orders/unpaid" && method === "GET") return getUnpaidOrders(env);
 
-      if (path === "/api/orders" && method === "POST") {
-        return createOrder(request, env);
-      }
-
-      // Payment routes must be deployed for the seller page to work.
-      if (
-        path === "/api/orders/unpaid" &&
-        method === "GET"
-      ) {
-        const authError = authorizePaymentRequest(request, env);
-        if (authError) return authError;
-
-        return getUnpaidOrders(env);
-      }
-
-      const paymentMatch = path.match(
-        /^\/api\/orders\/([^/]+)\/payments$/
-      );
-
+      const paymentMatch = path.match(/^\/api\/orders\/([^/]+)\/payments$/);
       if (paymentMatch && method === "POST") {
-        const authError = authorizePaymentRequest(request, env);
-        if (authError) return authError;
-
-        return recordOrderPayment(
-          decodeURIComponent(paymentMatch[1]),
-          request,
-          env
-        );
+        return recordOrderPayment(decodeURIComponent(paymentMatch[1]), request, env);
       }
 
       /* EXPENSES */
 
-      if (path === "/api/expenses" && method === "GET") {
-        return getExpenses(env);
-      }
+      if (path === "/api/expenses" && method === "GET") return getExpenses(env);
+      if (path === "/api/expenses" && method === "POST") return createExpense(request, env);
 
       /* DASHBOARD */
 
-      if (path === "/api/dashboard" && method === "GET") {
-        return getDashboard(env);
-      }
+      if (path === "/api/dashboard" && method === "GET") return getDashboard(env);
 
-      return json({
-        success: false,
-        error: "Route not found",
-        path
-      }, 404);
+      return json({ success: false, error: "Route not found", path }, 404);
 
     } catch (error) {
       console.error("School Stall Worker error:", error);
-
       return json({
         success: false,
         error: error.message || "Internal server error"
@@ -286,12 +254,11 @@ async function getDataByPrefix(env, prefix) {
       ...(cursor ? { cursor } : {})
     });
 
-    for (const key of result.keys) {
-      const record = await env.STALL_DATA.get(
-        key.name,
-        "json"
-      );
+    const batch = await Promise.all(
+      result.keys.map(key => env.STALL_DATA.get(key.name, "json"))
+    );
 
+    for (const record of batch) {
       if (record) records.push(record);
     }
 
@@ -312,21 +279,15 @@ async function getStudents(env) {
     String(a.name || "").localeCompare(String(b.name || ""))
   );
 
-  return json({
-    success: true,
-    students,
-    count: students.length
-  });
+  return json({ success: true, students, count: students.length });
 }
 
 async function createStudent(request, env) {
   const body = await readJson(request);
-  const name = String(body.name || "").trim();
-  const role = String(body.role || "Member").trim();
+  const name = String(body.name || "").trim().slice(0, 120);
+  const role = String(body.role || "Member").trim().slice(0, 40);
 
-  if (!name) {
-    return errorResponse("Student name is required");
-  }
+  if (!name) return errorResponse("Student name is required");
 
   const id = createId("STU");
 
@@ -338,10 +299,7 @@ async function createStudent(request, env) {
     createdAt: new Date().toISOString()
   };
 
-  await env.STALL_DATA.put(
-    `STUDENT:${id}`,
-    JSON.stringify(student)
-  );
+  await env.STALL_DATA.put(`STUDENT:${id}`, JSON.stringify(student));
 
   return json({ success: true, student }, 201);
 }
@@ -351,21 +309,14 @@ async function createStudent(request, env) {
 ============================================================ */
 
 async function getContributions(env) {
-  const contributions = await getDataByPrefix(
-    env,
-    "CONTRIBUTION:"
-  );
+  const contributions = await getDataByPrefix(env, "CONTRIBUTION:");
 
   contributions.sort((a, b) =>
     new Date(b.submittedAt || b.createdAt || 0) -
     new Date(a.submittedAt || a.createdAt || 0)
   );
 
-  return json({
-    success: true,
-    contributions,
-    count: contributions.length
-  });
+  return json({ success: true, contributions, count: contributions.length });
 }
 
 async function createContribution(request, env) {
@@ -373,8 +324,8 @@ async function createContribution(request, env) {
 
   const studentId = String(body.studentId || "").trim();
   const rawType = String(body.type || "").trim().toLowerCase();
-  const description = String(body.description || "").trim();
-  const notes = String(body.notes || "").trim();
+  const description = String(body.description || "").trim().slice(0, 1000);
+  const notes = String(body.notes || "").trim().slice(0, 500);
 
   const aliases = {
     money: "cash",
@@ -390,34 +341,20 @@ async function createContribution(request, env) {
 
   const type = aliases[rawType];
 
-  if (!studentId) {
-    return errorResponse("Student is required");
-  }
+  if (!studentId) return errorResponse("Student is required");
 
   if (!type) {
-    return errorResponse(
-      "Select money/cash, items/goods, labour, or service"
-    );
+    return errorResponse("Select money/cash, items/goods, labour, or service");
   }
 
-  if (!description) {
-    return errorResponse("Contribution description is required");
-  }
+  if (!description) return errorResponse("Contribution description is required");
 
-  const student = await env.STALL_DATA.get(
-    `STUDENT:${studentId}`,
-    "json"
-  );
+  const student = await env.STALL_DATA.get(`STUDENT:${studentId}`, "json");
 
-  if (!student) {
-    return errorResponse("Student not found", 404);
-  }
+  if (!student) return errorResponse("Student not found", 404);
 
-  const hasQuantity =
-    body.quantity !== undefined && body.quantity !== "";
-
-  const hasUnitValue =
-    body.unitValue !== undefined && body.unitValue !== "";
+  const hasQuantity = body.quantity !== undefined && body.quantity !== "";
+  const hasUnitValue = body.unitValue !== undefined && body.unitValue !== "";
 
   let quantity = hasQuantity ? Number(body.quantity) : 1;
   let unitValue;
@@ -432,13 +369,9 @@ async function createContribution(request, env) {
         ? Number(body.totalValue)
         : quantity * unitValue;
   } else {
-    totalValue = Number(
-      body.totalValue ?? body.agreedValue ?? body.value
-    );
+    totalValue = Number(body.totalValue ?? body.agreedValue ?? body.value);
 
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      quantity = 1;
-    }
+    if (!Number.isFinite(quantity) || quantity <= 0) quantity = 1;
 
     unitValue = totalValue / quantity;
   }
@@ -452,12 +385,12 @@ async function createContribution(request, env) {
   }
 
   if (!Number.isFinite(totalValue) || totalValue <= 0) {
-    return errorResponse(
-      "Total contribution value must be greater than zero"
-    );
+    return errorResponse("Total contribution value must be greater than zero");
   }
 
-  const suppliedDate = body.date ? new Date(body.date) : new Date();
+  // Accept both "date" and "contributionDate" from the page.
+  const rawDate = body.date || body.contributionDate;
+  const suppliedDate = rawDate ? new Date(rawDate) : new Date();
 
   if (Number.isNaN(suppliedDate.getTime())) {
     return errorResponse("Invalid contribution date");
@@ -487,10 +420,7 @@ async function createContribution(request, env) {
     rejectedBy: null
   };
 
-  await env.STALL_DATA.put(
-    `CONTRIBUTION:${id}`,
-    JSON.stringify(contribution)
-  );
+  await env.STALL_DATA.put(`CONTRIBUTION:${id}`, JSON.stringify(contribution));
 
   return json({
     success: true,
@@ -499,68 +429,48 @@ async function createContribution(request, env) {
   }, 201);
 }
 
-async function approveContribution(id, request, env) {
+async function reviewContribution(id, request, env, decision) {
   const key = `CONTRIBUTION:${id}`;
   const contribution = await env.STALL_DATA.get(key, "json");
 
-  if (!contribution) {
-    return errorResponse("Contribution not found", 404);
-  }
+  if (!contribution) return errorResponse("Contribution not found", 404);
 
   if (contribution.status !== "pending") {
-    return errorResponse(
-      `Contribution is already ${contribution.status}`
-    );
+    return errorResponse(`Contribution is already ${contribution.status}`);
   }
 
   const body = await readJson(request);
   const now = new Date().toISOString();
 
-  contribution.status = "approved";
-  contribution.approvedAt = now;
-  contribution.approvedBy =
-    String(body.approvedBy || "Admin").trim() || "Admin";
+  if (decision === "approved") {
+    contribution.status = "approved";
+    contribution.approvedAt = now;
+    contribution.approvedBy =
+      String(body.approvedBy || "Admin").trim().slice(0, 100) || "Admin";
+  } else {
+    contribution.status = "rejected";
+    contribution.rejectedAt = now;
+    contribution.rejectedBy =
+      String(body.rejectedBy || "Admin").trim().slice(0, 100) || "Admin";
+  }
+
   contribution.updatedAt = now;
 
   await env.STALL_DATA.put(key, JSON.stringify(contribution));
 
   return json({
     success: true,
-    message: "Contribution approved",
+    message: decision === "approved" ? "Contribution approved" : "Contribution rejected",
     contribution
   });
 }
 
-async function rejectContribution(id, request, env) {
-  const key = `CONTRIBUTION:${id}`;
-  const contribution = await env.STALL_DATA.get(key, "json");
+function approveContribution(id, request, env) {
+  return reviewContribution(id, request, env, "approved");
+}
 
-  if (!contribution) {
-    return errorResponse("Contribution not found", 404);
-  }
-
-  if (contribution.status !== "pending") {
-    return errorResponse(
-      `Contribution is already ${contribution.status}`
-    );
-  }
-
-  const body = await readJson(request);
-  const now = new Date().toISOString();
-
-  contribution.status = "rejected";
-  contribution.rejectedAt = now;
-  contribution.rejectedBy =
-    String(body.rejectedBy || "Admin").trim() || "Admin";
-  contribution.updatedAt = now;
-
-  await env.STALL_DATA.put(key, JSON.stringify(contribution));
-
-  return json({
-    success: true,
-    message: "Contribution rejected",
-    contribution
-  });
+function rejectContribution(id, request, env) {
+  return reviewContribution(id, request, env, "rejected");
 }
 
 /* ============================================================
@@ -584,9 +494,7 @@ async function getOwnership(env) {
     };
   }
 
-  const approved = contributions.filter(
-    item => item.status === "approved"
-  );
+  const approved = contributions.filter(item => item.status === "approved");
 
   for (const contribution of approved) {
     const studentId = contribution.studentId;
@@ -618,9 +526,7 @@ async function getOwnership(env) {
           ? (item.contribution / totalApprovedContribution) * 100
           : 0
     }))
-    .sort((a, b) =>
-      b.ownershipPercentage - a.ownershipPercentage
-    );
+    .sort((a, b) => b.ownershipPercentage - a.ownershipPercentage);
 
   return json({
     success: true,
@@ -634,6 +540,24 @@ async function getOwnership(env) {
    PRODUCTS
 ============================================================ */
 
+// Public list: no cost price, no reorder level.
+async function getPublicProducts(env) {
+  const products = await getDataByPrefix(env, "PRODUCT:");
+
+  const list = products
+    .filter(product => product.active !== false)
+    .map(product => ({
+      id: product.id,
+      name: product.name,
+      sellingPrice: product.sellingPrice,
+      stockQuantity: product.stockQuantity,
+      active: true
+    }))
+    .sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+
+  return json({ success: true, products: list, count: list.length });
+}
+
 async function getProducts(env) {
   const products = await getDataByPrefix(env, "PRODUCT:");
 
@@ -641,25 +565,19 @@ async function getProducts(env) {
     String(a.name || "").localeCompare(String(b.name || ""))
   );
 
-  return json({
-    success: true,
-    products,
-    count: products.length
-  });
+  return json({ success: true, products, count: products.length });
 }
 
 async function createProduct(request, env) {
   const body = await readJson(request);
 
-  const name = String(body.name || "").trim();
+  const name = String(body.name || "").trim().slice(0, 120);
   const sellingPrice = Number(body.sellingPrice);
   const costPrice = Number(body.costPrice ?? 0);
   const openingStock = Number(body.openingStock ?? 0);
   const reorderLevel = Number(body.reorderLevel ?? 0);
 
-  if (!name) {
-    return errorResponse("Product name is required");
-  }
+  if (!name) return errorResponse("Product name is required");
 
   if (!Number.isFinite(sellingPrice) || sellingPrice <= 0) {
     return errorResponse("Selling price must be greater than zero");
@@ -670,15 +588,11 @@ async function createProduct(request, env) {
   }
 
   if (!Number.isInteger(openingStock) || openingStock < 0) {
-    return errorResponse(
-      "Opening stock must be a non-negative whole number"
-    );
+    return errorResponse("Opening stock must be a non-negative whole number");
   }
 
   if (!Number.isInteger(reorderLevel) || reorderLevel < 0) {
-    return errorResponse(
-      "Reorder level must be a non-negative whole number"
-    );
+    return errorResponse("Reorder level must be a non-negative whole number");
   }
 
   const id = createId("PROD");
@@ -696,10 +610,7 @@ async function createProduct(request, env) {
     updatedAt: now
   };
 
-  await env.STALL_DATA.put(
-    `PRODUCT:${id}`,
-    JSON.stringify(product)
-  );
+  await env.STALL_DATA.put(`PRODUCT:${id}`, JSON.stringify(product));
 
   if (openingStock > 0) {
     const inventoryRecord = {
@@ -726,17 +637,13 @@ async function updateProduct(productId, request, env) {
   const key = `PRODUCT:${productId}`;
   const product = await env.STALL_DATA.get(key, "json");
 
-  if (!product) {
-    return errorResponse("Product not found", 404);
-  }
+  if (!product) return errorResponse("Product not found", 404);
 
   const body = await readJson(request);
 
   if (body.name !== undefined) {
-    const name = String(body.name).trim();
-    if (!name) {
-      return errorResponse("Product name cannot be empty");
-    }
+    const name = String(body.name).trim().slice(0, 120);
+    if (!name) return errorResponse("Product name cannot be empty");
     product.name = name;
   }
 
@@ -783,26 +690,20 @@ async function adjustInventory(productId, request, env) {
   const key = `PRODUCT:${productId}`;
   const product = await env.STALL_DATA.get(key, "json");
 
-  if (!product) {
-    return errorResponse("Product not found", 404);
-  }
+  if (!product) return errorResponse("Product not found", 404);
 
   const body = await readJson(request);
   const change = Number(body.change);
-  const reason = String(body.reason || "Manual adjustment").trim();
+  const reason = String(body.reason || "Manual adjustment").trim().slice(0, 200);
 
   if (!Number.isInteger(change) || change === 0) {
-    return errorResponse(
-      "Inventory change must be a non-zero whole number"
-    );
+    return errorResponse("Inventory change must be a non-zero whole number");
   }
 
   const previousStock = Number(product.stockQuantity || 0);
   const newStock = previousStock + change;
 
-  if (newStock < 0) {
-    return errorResponse("Inventory cannot go below zero");
-  }
+  if (newStock < 0) return errorResponse("Inventory cannot go below zero");
 
   const now = new Date().toISOString();
 
@@ -826,83 +727,87 @@ async function adjustInventory(productId, request, env) {
     JSON.stringify(inventoryRecord)
   );
 
-  return json({
-    success: true,
-    product,
-    inventoryRecord
-  });
+  return json({ success: true, product, inventoryRecord });
 }
 
 async function getInventoryHistory(env) {
   const inventory = await getDataByPrefix(env, "INVENTORY:");
 
   inventory.sort((a, b) =>
-    new Date(b.createdAt || 0) -
-    new Date(a.createdAt || 0)
+    new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
   );
 
-  return json({
-    success: true,
-    inventory,
-    count: inventory.length
-  });
+  return json({ success: true, inventory, count: inventory.length });
 }
 
 /* ============================================================
    ORDERS: CREATE
 ============================================================ */
 
-async function createOrder(request, env) {
+async function createOrder(request, env, role) {
   const body = await readJson(request);
 
-  const sellerName = String(body.sellerName || "").trim();
-  const customerName = String(body.customerName || "").trim();
-  const customerPhone = String(body.customerPhone || "").trim();
+  const isStaff = role === "admin" || role === "seller";
+
+  // Public customers cannot choose the seller name.
+  const sellerName = isStaff
+    ? String(body.sellerName || "").trim().slice(0, 100)
+    : "Online Customer";
+
+  const customerName = String(body.customerName || "").trim().slice(0, 120);
+  const customerClass = String(body.customerClass || "").trim().slice(0, 60);
+  const customerPhone = String(body.customerPhone || "").trim().slice(0, 30);
+
+  const rawFulfilment = String(body.fulfilment || "").trim().toLowerCase();
+  const fulfilment = ["collection", "classroom"].includes(rawFulfilment)
+    ? rawFulfilment
+    : "";
+
   const paymentMethod = String(body.paymentMethod || "cash")
     .trim()
     .toLowerCase();
 
   const items = Array.isArray(body.items) ? body.items : [];
 
-  if (!sellerName) {
-    return errorResponse("Seller name is required");
-  }
+  if (!sellerName) return errorResponse("Seller name is required");
 
   if (!items.length) {
     return errorResponse("Order must contain at least one product");
+  }
+
+  if (items.length > 50) {
+    return errorResponse("An order can contain at most 50 different products");
   }
 
   if (!["cash", "mpesa", "credit"].includes(paymentMethod)) {
     return errorResponse("Invalid payment method");
   }
 
+  // Cash orders are marked PAID immediately, so only staff may create them.
+  if (paymentMethod === "cash" && !isStaff) {
+    return errorResponse(
+      "Cash orders can only be recorded by a seller. Enter the seller PIN.",
+      401
+    );
+  }
+
   const orderItems = [];
   const requestedQuantities = {};
   let total = 0;
 
-  // Validate all products and quantities before saving the order.
   for (const requestedItem of items) {
     const productId = String(requestedItem.productId || "").trim();
     const quantity = Number(requestedItem.quantity);
 
-    if (!productId) {
-      return errorResponse("A product ID is missing");
+    if (!productId) return errorResponse("A product ID is missing");
+
+    if (!Number.isInteger(quantity) || quantity <= 0 || quantity > 1000) {
+      return errorResponse("Product quantity must be a positive whole number");
     }
 
-    if (!Number.isInteger(quantity) || quantity <= 0) {
-      return errorResponse(
-        "Product quantity must be a positive whole number"
-      );
-    }
+    const product = await env.STALL_DATA.get(`PRODUCT:${productId}`, "json");
 
-    const product = await env.STALL_DATA.get(
-      `PRODUCT:${productId}`,
-      "json"
-    );
-
-    if (!product) {
-      return errorResponse(`Product not found: ${productId}`, 404);
-    }
+    if (!product) return errorResponse(`Product not found: ${productId}`, 404);
 
     if (product.active === false) {
       return errorResponse(`${product.name} is no longer available`);
@@ -936,17 +841,10 @@ async function createOrder(request, env) {
   }
 
   // Validate total quantities, including repeated product IDs.
-  for (const [productId, quantity] of Object.entries(
-    requestedQuantities
-  )) {
-    const product = await env.STALL_DATA.get(
-      `PRODUCT:${productId}`,
-      "json"
-    );
+  for (const [productId, quantity] of Object.entries(requestedQuantities)) {
+    const product = await env.STALL_DATA.get(`PRODUCT:${productId}`, "json");
 
-    if (!product) {
-      return errorResponse(`Product not found: ${productId}`, 404);
-    }
+    if (!product) return errorResponse(`Product not found: ${productId}`, 404);
 
     const currentStock = Number(product.stockQuantity || 0);
 
@@ -962,11 +860,8 @@ async function createOrder(request, env) {
 
   let paymentStatus = "PENDING";
 
-  if (paymentMethod === "cash") {
-    paymentStatus = "PAID";
-  } else if (paymentMethod === "credit") {
-    paymentStatus = "UNPAID";
-  }
+  if (paymentMethod === "cash") paymentStatus = "PAID";
+  else if (paymentMethod === "credit") paymentStatus = "UNPAID";
 
   const amountPaid = paymentMethod === "cash" ? total : 0;
   const balance = Math.max(0, total - amountPaid);
@@ -975,7 +870,9 @@ async function createOrder(request, env) {
     id: orderId,
     sellerName,
     customerName,
+    customerClass,
     customerPhone,
+    fulfilment,
     paymentMethod,
     items: orderItems,
     total,
@@ -985,27 +882,19 @@ async function createOrder(request, env) {
     currency: "KES",
     status: "completed",
     paymentStatus,
+    source: isStaff ? "seller" : "online",
     createdAt: now,
     updatedAt: now
   };
 
-  // Save order and deduct stock once for this new order.
-  await env.STALL_DATA.put(
-    `ORDER:${orderId}`,
-    JSON.stringify(order)
-  );
+  await env.STALL_DATA.put(`ORDER:${orderId}`, JSON.stringify(order));
 
-  for (const [productId, quantity] of Object.entries(
-    requestedQuantities
-  )) {
+  for (const [productId, quantity] of Object.entries(requestedQuantities)) {
     const key = `PRODUCT:${productId}`;
     const product = await env.STALL_DATA.get(key, "json");
 
     if (!product) {
-      console.error(
-        "Product disappeared while processing order:",
-        productId
-      );
+      console.error("Product disappeared while processing order:", productId);
       continue;
     }
 
@@ -1035,10 +924,25 @@ async function createOrder(request, env) {
     );
   }
 
+  const details = getOrderPaymentDetails(order);
+
+  // Public customers only need a confirmation, not the full record.
+  if (!isStaff) {
+    return json({
+      success: true,
+      message: "Order created successfully",
+      order: {
+        id: details.id,
+        total: details.total,
+        paymentStatus: details.paymentStatus
+      }
+    }, 201);
+  }
+
   return json({
     success: true,
     message: "Order created successfully",
-    order: getOrderPaymentDetails(order)
+    order: details
   }, 201);
 }
 
@@ -1052,38 +956,10 @@ async function getOrders(env) {
   const orders = records
     .map(getOrderPaymentDetails)
     .sort((a, b) =>
-      new Date(b.createdAt || 0) -
-      new Date(a.createdAt || 0)
+      new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
     );
 
-  return json({
-    success: true,
-    orders,
-    count: orders.length
-  });
-}
-
-/* ============================================================
-   LATER PAYMENTS: ACCESS CONTROL
-============================================================ */
-
-function authorizePaymentRequest(request, env) {
-  const configuredPin = env.STALL_PAYMENT_PIN;
-
-  if (!configuredPin) {
-    return errorResponse(
-      "Payment access is not configured. Set STALL_PAYMENT_PIN in Cloudflare Worker secrets.",
-      503
-    );
-  }
-
-  const suppliedPin = request.headers.get("X-Stall-Pin") || "";
-
-  if (suppliedPin !== configuredPin) {
-    return errorResponse("Invalid payment access PIN", 401);
-  }
-
-  return null;
+  return json({ success: true, orders, count: orders.length });
 }
 
 /* ============================================================
@@ -1098,7 +974,6 @@ function getOrderPaymentDetails(order) {
   if (order.amountPaid !== undefined && order.amountPaid !== null) {
     amountPaid = Number(order.amountPaid) || 0;
   } else if (String(order.paymentStatus || "").toUpperCase() === "PAID") {
-    // Keep legacy paid orders paid.
     amountPaid = total;
   } else {
     amountPaid = 0;
@@ -1106,10 +981,7 @@ function getOrderPaymentDetails(order) {
 
   amountPaid = Math.min(total, Math.max(0, amountPaid));
 
-  const balance = Math.max(
-    0,
-    Math.round((total - amountPaid) * 100) / 100
-  );
+  const balance = Math.max(0, Math.round((total - amountPaid) * 100) / 100);
 
   let paymentStatus;
 
@@ -1117,9 +989,7 @@ function getOrderPaymentDetails(order) {
     paymentStatus = "PAID";
   } else if (amountPaid > 0) {
     paymentStatus = "PARTIALLY_PAID";
-  } else if (
-    String(order.paymentStatus || "").toUpperCase() === "PENDING"
-  ) {
+  } else if (String(order.paymentStatus || "").toUpperCase() === "PENDING") {
     paymentStatus = "PENDING";
   } else {
     paymentStatus = "UNPAID";
@@ -1142,26 +1012,18 @@ async function getUnpaidOrders(env) {
   const allOrders = await getDataByPrefix(env, "ORDER:");
 
   const orders = allOrders
-    .filter(order =>
-      String(order.status || "").toLowerCase() !== "cancelled"
-    )
+    .filter(order => String(order.status || "").toLowerCase() !== "cancelled")
     .map(getOrderPaymentDetails)
     .filter(order => order.balance > 0.000001)
     .sort((a, b) =>
-      new Date(b.createdAt || 0) -
-      new Date(a.createdAt || 0)
+      new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
     );
 
   const totalOutstanding = Math.round(
     orders.reduce((sum, order) => sum + order.balance, 0) * 100
   ) / 100;
 
-  return json({
-    success: true,
-    orders,
-    count: orders.length,
-    totalOutstanding
-  });
+  return json({ success: true, orders, count: orders.length, totalOutstanding });
 }
 
 /* ============================================================
@@ -1172,14 +1034,10 @@ async function recordOrderPayment(orderId, request, env) {
   const key = `ORDER:${orderId}`;
   const order = await env.STALL_DATA.get(key, "json");
 
-  if (!order) {
-    return errorResponse("Order not found", 404);
-  }
+  if (!order) return errorResponse("Order not found", 404);
 
   if (String(order.status || "").toLowerCase() === "cancelled") {
-    return errorResponse(
-      "Payments cannot be recorded against a cancelled order."
-    );
+    return errorResponse("Payments cannot be recorded against a cancelled order.");
   }
 
   const current = getOrderPaymentDetails(order);
@@ -1191,13 +1049,11 @@ async function recordOrderPayment(orderId, request, env) {
   const body = await readJson(request);
   const amount = Number(body.amount);
   const method = String(body.method || "").trim().toLowerCase();
-  const reference = String(body.reference || "").trim();
-  const recordedBy = String(body.recordedBy || "Seller").trim();
+  const reference = String(body.reference || "").trim().slice(0, 120);
+  const recordedBy = String(body.recordedBy || "Seller").trim().slice(0, 100);
 
   if (!Number.isFinite(amount) || amount <= 0) {
-    return errorResponse(
-      "Enter a valid payment amount greater than zero."
-    );
+    return errorResponse("Enter a valid payment amount greater than zero.");
   }
 
   if (!["cash", "mpesa"].includes(method)) {
@@ -1210,7 +1066,6 @@ async function recordOrderPayment(orderId, request, env) {
     );
   }
 
-  // For M-Pesa, confirm receipt before recording the transaction.
   if (method === "mpesa" && !reference) {
     return errorResponse(
       "Enter the M-Pesa transaction reference after confirming receipt."
@@ -1242,14 +1097,11 @@ async function recordOrderPayment(orderId, request, env) {
     amountPaid: updatedAmountPaid,
     balance: updatedBalance,
     payments: [...current.payments, payment],
-    paymentStatus: updatedBalance <= 0.000001
-      ? "PAID"
-      : "PARTIALLY_PAID",
+    paymentStatus: updatedBalance <= 0.000001 ? "PAID" : "PARTIALLY_PAID",
     updatedAt: now
   };
 
-  // Only the existing order record is updated here.
-  // No new order and no stock deduction.
+  // Only the existing order record is updated. No stock deduction.
   await env.STALL_DATA.put(key, JSON.stringify(updatedOrder));
 
   return json({
@@ -1263,22 +1115,55 @@ async function recordOrderPayment(orderId, request, env) {
 }
 
 /* ============================================================
-   EXPENSES: GET
+   EXPENSES
 ============================================================ */
 
 async function getExpenses(env) {
   const expenses = await getDataByPrefix(env, "EXPENSE:");
 
   expenses.sort((a, b) =>
-    new Date(b.createdAt || 0) -
-    new Date(a.createdAt || 0)
+    new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
   );
 
-  return json({
-    success: true,
-    expenses,
-    count: expenses.length
-  });
+  return json({ success: true, expenses, count: expenses.length });
+}
+
+async function createExpense(request, env) {
+  const body = await readJson(request);
+
+  const description = String(body.description || "").trim().slice(0, 300);
+  const category = String(body.category || "General").trim().slice(0, 60) || "General";
+  const recordedBy = String(body.recordedBy || "Admin").trim().slice(0, 100) || "Admin";
+  const amount = Number(body.amount);
+
+  if (!description) return errorResponse("Expense description is required");
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return errorResponse("Expense amount must be greater than zero");
+  }
+
+  const suppliedDate = body.date ? new Date(body.date) : new Date();
+
+  if (Number.isNaN(suppliedDate.getTime())) {
+    return errorResponse("Invalid expense date");
+  }
+
+  const id = createId("EXP");
+  const now = new Date().toISOString();
+
+  const expense = {
+    id,
+    description,
+    category,
+    amount: Math.round(amount * 100) / 100,
+    date: suppliedDate.toISOString(),
+    recordedBy,
+    createdAt: now
+  };
+
+  await env.STALL_DATA.put(`EXPENSE:${id}`, JSON.stringify(expense));
+
+  return json({ success: true, expense }, 201);
 }
 
 /* ============================================================
@@ -1286,78 +1171,51 @@ async function getExpenses(env) {
 ============================================================ */
 
 async function getDashboard(env) {
-  const [
-    students,
-    contributions,
-    products,
-    orders,
-    expenses
-  ] = await Promise.all([
-    getDataByPrefix(env, "STUDENT:"),
-    getDataByPrefix(env, "CONTRIBUTION:"),
-    getDataByPrefix(env, "PRODUCT:"),
-    getDataByPrefix(env, "ORDER:"),
-    getDataByPrefix(env, "EXPENSE:")
-  ]);
+  const [students, contributions, products, orders, expenses] =
+    await Promise.all([
+      getDataByPrefix(env, "STUDENT:"),
+      getDataByPrefix(env, "CONTRIBUTION:"),
+      getDataByPrefix(env, "PRODUCT:"),
+      getDataByPrefix(env, "ORDER:"),
+      getDataByPrefix(env, "EXPENSE:")
+    ]);
 
-  const approvedContributions = contributions.filter(
-    item => item.status === "approved"
-  );
-
-  const pendingContributions = contributions.filter(
-    item => item.status === "pending"
-  );
-
-  const rejectedContributions = contributions.filter(
-    item => item.status === "rejected"
-  );
+  const approvedContributions = contributions.filter(i => i.status === "approved");
+  const pendingContributions = contributions.filter(i => i.status === "pending");
+  const rejectedContributions = contributions.filter(i => i.status === "rejected");
 
   const totalContributions = approvedContributions.reduce(
-    (sum, item) =>
-      sum + Number(item.totalValue ?? item.agreedValue ?? 0),
+    (sum, item) => sum + Number(item.totalValue ?? item.agreedValue ?? 0),
     0
   );
 
-  const completedOrders = orders.filter(
-    order => order.status === "completed"
-  );
+  const completedOrders = orders.filter(order => order.status === "completed");
 
-  // Sales value represents the full value of completed orders.
+  // Sales value is the full value of completed orders (accrual basis).
   const totalSales = completedOrders.reduce(
     (sum, order) => sum + Number(order.total || 0),
     0
   );
 
-  const totalCostOfGoodsSold = completedOrders.reduce(
-    (sum, order) => {
-      const orderCost = Array.isArray(order.items)
-        ? order.items.reduce(
-            (itemSum, item) =>
-              itemSum +
-              Number(item.costPrice || 0) *
-              Number(item.quantity || 0),
-            0
-          )
-        : 0;
+  const totalCostOfGoodsSold = completedOrders.reduce((sum, order) => {
+    const orderCost = Array.isArray(order.items)
+      ? order.items.reduce(
+          (itemSum, item) =>
+            itemSum + Number(item.costPrice || 0) * Number(item.quantity || 0),
+          0
+        )
+      : 0;
 
-      return sum + orderCost;
-    },
-    0
-  );
+    return sum + orderCost;
+  }, 0);
 
   const totalCollected = completedOrders.reduce(
-    (sum, order) => {
-      const details = getOrderPaymentDetails(order);
-      return sum + details.amountPaid;
-    },
+    (sum, order) => sum + getOrderPaymentDetails(order).amountPaid,
     0
   );
 
   const totalOutstanding = completedOrders.reduce(
-    (sum, order) => {
-      const details = getOrderPaymentDetails(order);
-      return sum + details.balance;
-    },
+    (sum, order) => sum + getOrderPaymentDetails(order).balance,
     0
   );
 
@@ -1374,14 +1232,11 @@ async function getDashboard(env) {
     0
   );
 
-  const activeProducts = products.filter(
-    product => product.active !== false
-  );
+  const activeProducts = products.filter(product => product.active !== false);
 
   const lowStockProducts = activeProducts.filter(
     product =>
-      Number(product.stockQuantity || 0) <=
-      Number(product.reorderLevel || 0)
+      Number(product.stockQuantity || 0) <= Number(product.reorderLevel || 0)
   );
 
   return json({
