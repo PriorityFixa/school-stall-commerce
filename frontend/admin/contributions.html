@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,177 +8,61 @@
 
   <style>
     :root {
-      --navy: #172033;
-      --blue: #3156a3;
-      --bg: #f5f6f8;
-      --border: #e2e6ed;
-      --muted: #697386;
-      --green: #176b36;
-      --red: #9a1c1c;
-      --amber: #7a5b00;
+      --navy: #172033; --blue: #3156a3; --bg: #f5f6f8; --border: #e2e6ed;
+      --muted: #697386; --green: #176b36; --red: #9a1c1c; --amber: #7a5b00;
     }
 
     * { box-sizing: border-box; }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--navy);
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--navy); }
 
-    header {
-      background: var(--navy);
-      color: white;
-      padding: 22px max(20px, calc((100% - 1200px) / 2));
-    }
+    header { background: var(--navy); color: white; padding: 22px max(20px, calc((100% - 1200px) / 2)); }
+    header h1 { margin: 0; font-size: 26px; }
+    header p { margin: 7px 0 0; color: #d0d7e5; line-height: 1.5; }
 
-    header h1 {
-      margin: 0;
-      font-size: 26px;
-    }
+    main { width: min(1200px, 94%); margin: 22px auto 50px; }
 
-    header p {
-      margin: 7px 0 0;
-      color: #d0d7e5;
-      line-height: 1.5;
-    }
-
-    main {
-      width: min(1200px, 94%);
-      margin: 22px auto 50px;
-    }
-
-    .back {
-      display: inline-block;
-      margin-bottom: 18px;
-      color: var(--navy);
-      text-decoration: none;
-      font-weight: bold;
-    }
-
+    .back { display: inline-block; margin-bottom: 18px; color: var(--navy); text-decoration: none; font-weight: bold; }
     .back:hover { text-decoration: underline; }
 
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 20px;
-    }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
 
-    .stat, .card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.035);
-    }
-
+    .stat, .card { background: white; border: 1px solid var(--border); border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.035); }
     .stat { padding: 18px; }
+    .stat-label { color: var(--muted); font-size: 13px; margin-bottom: 10px; }
+    .stat-value { font-size: 23px; font-weight: bold; overflow-wrap: anywhere; }
 
-    .stat-label {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 10px;
-    }
+    .card { padding: 22px; margin-bottom: 20px; }
 
-    .stat-value {
-      font-size: 23px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-    }
+    h2 { font-size: 20px; margin: 0 0 8px; }
+    .subheading { color: var(--muted); margin: 0 0 20px; font-size: 14px; line-height: 1.5; }
 
-    .card {
-      padding: 22px;
-      margin-bottom: 20px;
-    }
-
-    h2 {
-      font-size: 20px;
-      margin: 0 0 8px;
-    }
-
-    .subheading {
-      color: var(--muted);
-      margin: 0 0 20px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .field.full { grid-column: 1 / -1; }
 
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 7px;
-    }
+    label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 7px; }
 
-    input, select, textarea, button {
-      font: inherit;
-    }
+    input, select, textarea, button { font: inherit; }
 
     input, select, textarea {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d5d9e0;
-      border-radius: 8px;
-      background: white;
-      color: var(--navy);
+      width: 100%; padding: 12px; border: 1px solid #d5d9e0; border-radius: 8px;
+      background: white; color: var(--navy);
     }
 
-    input:focus, select:focus, textarea:focus {
-      outline: 2px solid #b8c9f2;
-      border-color: var(--blue);
-    }
+    input:focus, select:focus, textarea:focus { outline: 2px solid #b8c9f2; border-color: var(--blue); }
 
-    textarea {
-      min-height: 85px;
-      resize: vertical;
-    }
+    textarea { min-height: 85px; resize: vertical; }
 
-    .help {
-      display: block;
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 6px;
-      line-height: 1.5;
-    }
+    .help { display: block; color: var(--muted); font-size: 12px; margin-top: 6px; line-height: 1.5; }
 
     .calculation {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      padding: 16px;
-      background: #f0f4fc;
-      border-radius: 10px;
-      margin-top: 4px;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      flex-wrap: wrap; padding: 16px; background: #f0f4fc; border-radius: 10px; margin-top: 4px;
     }
-
     .calculation span { color: #46536b; }
+    .calculation strong { font-size: 23px; overflow-wrap: anywhere; }
 
-    .calculation strong {
-      font-size: 23px;
-      overflow-wrap: anywhere;
-    }
-
-    button {
-      border: 0;
-      border-radius: 8px;
-      padding: 11px 14px;
-      background: var(--navy);
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
+    button { border: 0; border-radius: 8px; padding: 11px 14px; background: var(--navy); color: white; font-weight: bold; cursor: pointer; }
     button:hover { filter: brightness(1.12); }
     button:disabled { opacity: .6; cursor: wait; }
 
@@ -188,92 +71,31 @@
     .reject-button { background: var(--red); }
     .secondary-button { background: #e9edf5; color: var(--navy); }
 
-    .message {
-      display: none;
-      margin-top: 15px;
-      padding: 13px;
-      border-radius: 8px;
-      line-height: 1.5;
-      overflow-wrap: anywhere;
-    }
-
+    .message { display: none; margin-top: 15px; padding: 13px; border-radius: 8px; line-height: 1.5; overflow-wrap: anywhere; }
     .message.success { display: block; background: #e4f6e9; color: #176b36; }
     .message.error { display: block; background: #fde8e8; color: #9a1c1c; }
     .message.info { display: block; background: #eef3ff; color: #24467f; }
 
-    .toolbar {
-      display: grid;
-      grid-template-columns: minmax(180px, 1fr) 200px 200px;
-      gap: 10px;
-      margin: 18px 0;
-    }
+    .toolbar { display: grid; grid-template-columns: minmax(180px, 1fr) 200px 200px; gap: 10px; margin: 18px 0; }
 
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-    }
+    .table-wrapper { width: 100%; overflow-x: auto; }
 
-    table {
-      width: 100%;
-      min-width: 1100px;
-      border-collapse: collapse;
-    }
+    table { width: 100%; min-width: 1100px; border-collapse: collapse; }
 
-    th, td {
-      padding: 13px 11px;
-      text-align: left;
-      vertical-align: top;
-      border-bottom: 1px solid #edf0f4;
-      font-size: 13px;
-    }
-
-    th {
-      background: #f8f9fb;
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
+    th, td { padding: 13px 11px; text-align: left; vertical-align: top; border-bottom: 1px solid #edf0f4; font-size: 13px; }
+    th { background: #f8f9fb; color: var(--muted); font-size: 12px; white-space: nowrap; }
     td { line-height: 1.5; }
 
-    .status {
-      display: inline-block;
-      padding: 5px 9px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: bold;
-      text-transform: capitalize;
-      white-space: nowrap;
-    }
-
+    .status { display: inline-block; padding: 5px 9px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: capitalize; white-space: nowrap; }
     .status.pending { background: #fff3cd; color: var(--amber); }
     .status.approved { background: #dff5e5; color: var(--green); }
     .status.rejected { background: #fde2e2; color: var(--red); }
 
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-width: 140px;
-    }
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; min-width: 140px; }
+    .actions button { width: auto; padding: 8px 10px; font-size: 12px; }
 
-    .actions button {
-      width: auto;
-      padding: 8px 10px;
-      font-size: 12px;
-    }
-
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 28px;
-    }
-
-    .history-footer {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 14px;
-    }
+    .empty { text-align: center; color: var(--muted); padding: 28px; }
+    .history-footer { color: var(--muted); font-size: 13px; margin-top: 14px; }
 
     @media (max-width: 850px) {
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -306,22 +128,10 @@
   <a class="back" href="../../index.html">← Back to Admin Dashboard</a>
 
   <section class="stats" aria-label="Contribution summary">
-    <div class="stat">
-      <div class="stat-label">Approved Contribution Value</div>
-      <div class="stat-value" id="approved-total">KSh 0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Pending Value</div>
-      <div class="stat-value" id="pending-total">KSh 0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Pending Submissions</div>
-      <div class="stat-value" id="pending-count">0</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Approved Submissions</div>
-      <div class="stat-value" id="approved-count">0</div>
-    </div>
+    <div class="stat"><div class="stat-label">Approved Contribution Value</div><div class="stat-value" id="approved-total">KSh 0</div></div>
+    <div class="stat"><div class="stat-label">Pending Value</div><div class="stat-value" id="pending-total">KSh 0</div></div>
+    <div class="stat"><div class="stat-label">Pending Submissions</div><div class="stat-value" id="pending-count">0</div></div>
+    <div class="stat"><div class="stat-label">Approved Submissions</div><div class="stat-value" id="approved-count">0</div></div>
   </section>
 
   <section class="card">
@@ -334,9 +144,7 @@
       <div class="form-grid">
         <div class="field">
           <label for="student">Student *</label>
-          <select id="student" required>
-            <option value="">Loading students...</option>
-          </select>
+          <select id="student" required><option value="">Loading students...</option></select>
           <small class="help">Select the student who made the contribution.</small>
         </div>
 
@@ -353,21 +161,18 @@
         <div class="field full">
           <label for="description">Description *</label>
           <textarea id="description" maxlength="1000"
-            placeholder="e.g. Cash contribution, packets of biscuits, or stall setup work"
-            required></textarea>
+            placeholder="e.g. Cash contribution, packets of biscuits, or stall setup work" required></textarea>
         </div>
 
         <div class="field" id="quantity-field">
           <label for="quantity">Quantity *</label>
-          <input id="quantity" type="number" min="0.01" step="0.01"
-            value="1" required>
+          <input id="quantity" type="number" min="0.01" step="0.01" value="1" required>
           <small class="help" id="quantity-help">Money uses quantity 1.</small>
         </div>
 
         <div class="field">
           <label for="unit-value" id="unit-value-label">Value per unit (KSh) *</label>
-          <input id="unit-value" type="number" min="0.01" step="0.01"
-            placeholder="e.g. 500" required>
+          <input id="unit-value" type="number" min="0.01" step="0.01" placeholder="e.g. 500" required>
           <small class="help" id="unit-value-help">Enter the amount or agreed rate.</small>
         </div>
 
@@ -378,8 +183,7 @@
 
         <div class="field">
           <label for="notes">Notes (optional)</label>
-          <input id="notes" type="text" maxlength="500"
-            placeholder="Receipt reference or verification notes">
+          <input id="notes" type="text" maxlength="500" placeholder="Receipt reference or verification notes">
         </div>
 
         <div class="field full">
@@ -393,9 +197,7 @@
         </div>
 
         <div class="field full">
-          <button class="primary-button" id="submit-button" type="submit">
-            Submit Contribution for Approval
-          </button>
+          <button class="primary-button" id="submit-button" type="submit">Submit Contribution for Approval</button>
         </div>
       </div>
     </form>
@@ -405,14 +207,10 @@
 
   <section class="card">
     <h2>Contribution History</h2>
-    <p class="subheading">
-      Search records, filter by status or type, and approve or reject pending submissions.
-    </p>
+    <p class="subheading">Search records, filter by status or type, and approve or reject pending submissions.</p>
 
     <div class="toolbar">
-      <input id="search" type="search"
-        placeholder="Search student or description..."
-        aria-label="Search contributions">
+      <input id="search" type="search" placeholder="Search student or description..." aria-label="Search contributions">
 
       <select id="status-filter" aria-label="Filter by status">
         <option value="all">All statuses</option>
@@ -433,17 +231,9 @@
       <table>
         <thead>
           <tr>
-            <th>Student</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Quantity</th>
-            <th>Unit Value</th>
-            <th>Total Value</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Notes</th>
-            <th>Approved / Rejected By</th>
-            <th>Action</th>
+            <th>Student</th><th>Type</th><th>Description</th><th>Quantity</th><th>Unit Value</th>
+            <th>Total Value</th><th>Status</th><th>Date</th><th>Notes</th>
+            <th>Approved / Rejected By</th><th>Action</th>
           </tr>
         </thead>
         <tbody id="contributions-table">
@@ -453,16 +243,15 @@
     </div>
 
     <div class="history-footer" id="history-count">Loading records...</div>
-    <button type="button" class="secondary-button" id="refresh-button"
-      style="margin-top:14px;">Refresh Records</button>
+    <button type="button" class="secondary-button" id="refresh-button" style="margin-top:14px;">Refresh Records</button>
   </section>
 </main>
 
+<script src="../admin-auth.js"></script>
 <script>
 "use strict";
 
-const API_URL = "https://school-stall-commerce.priorityfixa.workers.dev";
-
+const api = StallAdmin.api;
 const $ = id => document.getElementById(id);
 
 const studentSelect = $("student");
@@ -484,11 +273,7 @@ function money(value) {
 
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, character => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
   })[character]);
 }
 
@@ -502,38 +287,25 @@ function clearMessage() {
   messageBox.className = "message";
 }
 
-async function api(path, options = {}) {
-  const response = await fetch(API_URL + path, {
-    ...options,
-    headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
-      ...(options.headers || {})
-    }
-  });
+/* The reviewer's name is asked once per tab so approvals have an audit trail. */
+function getReviewerName() {
+  let name = sessionStorage.getItem("stallAdminName");
 
-  let data;
-  try {
-    data = await response.json();
-  } catch {
-    throw new Error("The server returned an unreadable response.");
+  if (!name) {
+    name = (window.prompt("Your name (recorded with your approval or rejection):") || "").trim();
+    if (!name) return "";
+    sessionStorage.setItem("stallAdminName", name);
   }
 
-  if (!response.ok || data.success === false) {
-    throw new Error(data.error || data.message || `Request failed (${response.status}).`);
-  }
-
-  return data;
+  return name;
 }
 
-/* ---------------------------------------------------------
-   DATE AND CONTRIBUTION FORM
---------------------------------------------------------- */
+/* ---------------- DATE AND CONTRIBUTION FORM ---------------- */
 
 function setToday() {
   const now = new Date();
-  const localDate = new Date(
-    now.getTime() - now.getTimezoneOffset() * 60000
-  ).toISOString().slice(0, 10);
+  const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+    .toISOString().slice(0, 10);
 
   $("contribution-date").value = localDate;
 }
@@ -577,17 +349,14 @@ function updateCalculatedTotal() {
   const unitValue = Number($("unit-value").value || 0);
   const total = quantity * unitValue;
 
-  $("calculated-total").textContent =
-    Number.isFinite(total) ? money(total) : money(0);
+  $("calculated-total").textContent = Number.isFinite(total) ? money(total) : money(0);
 }
 
 $("type").addEventListener("change", updateTypeFields);
 $("quantity").addEventListener("input", updateCalculatedTotal);
 $("unit-value").addEventListener("input", updateCalculatedTotal);
 
-/* ---------------------------------------------------------
-   LOAD STUDENTS
---------------------------------------------------------- */
+/* ---------------- LOAD STUDENTS ---------------- */
 
 async function loadStudents() {
   studentSelect.innerHTML = '<option value="">Loading students...</option>';
@@ -615,9 +384,7 @@ async function loadStudents() {
   }
 }
 
-/* ---------------------------------------------------------
-   LOAD CONTRIBUTIONS
---------------------------------------------------------- */
+/* ---------------- LOAD CONTRIBUTIONS ---------------- */
 
 async function loadContributions() {
   table.innerHTML = '<tr><td colspan="11" class="empty">Loading contributions...</td></tr>';
@@ -663,7 +430,8 @@ function contributionValue(item) {
 }
 
 function displayDate(item) {
-  const raw = item.contributionDate || item.submittedAt || item.date;
+  // The Worker stores the chosen date in "date".
+  const raw = item.date || item.contributionDate || item.submittedAt;
 
   if (!raw) return "—";
 
@@ -673,22 +441,20 @@ function displayDate(item) {
   return date.toLocaleDateString("en-KE");
 }
 
+function studentNameOf(item) {
+  return item.studentName ||
+    students.find(student => String(student.id) === String(item.studentId))?.name ||
+    "Unknown student";
+}
+
 function renderContributions() {
   const search = $("search").value.trim().toLowerCase();
   const statusFilter = $("status-filter").value;
   const typeFilter = $("type-filter").value;
 
   const filtered = contributions.filter(item => {
-    const studentName = item.studentName ||
-      students.find(student => String(student.id) === String(item.studentId))?.name ||
-      "Unknown student";
-
-    const searchable = [
-      studentName,
-      item.description,
-      item.notes,
-      item.type
-    ].join(" ").toLowerCase();
+    const searchable = [studentNameOf(item), item.description, item.notes, item.type]
+      .join(" ").toLowerCase();
 
     return (!search || searchable.includes(search)) &&
       (statusFilter === "all" || normalizedStatus(item) === statusFilter) &&
@@ -705,33 +471,24 @@ function renderContributions() {
     const status = normalizedStatus(item);
     const value = contributionValue(item);
     const quantity = item.quantity ?? 1;
-    const unitValue = item.unitValue ?? (
-      Number(quantity) ? value / Number(quantity) : value
-    );
-    const studentName = item.studentName ||
-      students.find(student => String(student.id) === String(item.studentId))?.name ||
-      "Unknown student";
-    const reviewer = status === "approved"
-      ? item.approvedBy
-      : status === "rejected"
-        ? item.rejectedBy
-        : "";
+    const unitValue = item.unitValue ?? (Number(quantity) ? value / Number(quantity) : value);
+    const reviewer = status === "approved" ? item.approvedBy
+      : status === "rejected" ? item.rejectedBy : "";
 
     let actions = "—";
 
     if (status === "pending") {
+      const disabled = busyIds.has(String(item.id)) ? "disabled" : "";
       actions = `
         <div class="actions">
-          <button class="approve-button" data-action="approve" data-id="${escapeHtml(item.id)}"
-            ${busyIds.has(String(item.id)) ? "disabled" : ""}>Approve</button>
-          <button class="reject-button" data-action="reject" data-id="${escapeHtml(item.id)}"
-            ${busyIds.has(String(item.id)) ? "disabled" : ""}>Reject</button>
+          <button class="approve-button" data-action="approve" data-id="${escapeHtml(item.id)}" ${disabled}>Approve</button>
+          <button class="reject-button" data-action="reject" data-id="${escapeHtml(item.id)}" ${disabled}>Reject</button>
         </div>`;
     }
 
     return `
       <tr>
-        <td>${escapeHtml(studentName)}</td>
+        <td>${escapeHtml(studentNameOf(item))}</td>
         <td>${escapeHtml(typeLabel(item.type))}</td>
         <td>${escapeHtml(item.description || "—")}</td>
         <td>${escapeHtml(quantity)}</td>
@@ -745,26 +502,20 @@ function renderContributions() {
       </tr>`;
   }).join("");
 
-  $("history-count").textContent =
-    `Showing ${filtered.length} of ${contributions.length} records`;
+  $("history-count").textContent = `Showing ${filtered.length} of ${contributions.length} records`;
 }
 
 function updateSummary() {
   const approved = contributions.filter(item => normalizedStatus(item) === "approved");
   const pending = contributions.filter(item => normalizedStatus(item) === "pending");
 
-  const approvedValue = approved.reduce((sum, item) => sum + contributionValue(item), 0);
-  const pendingValue = pending.reduce((sum, item) => sum + contributionValue(item), 0);
-
-  $("approved-total").textContent = money(approvedValue);
-  $("pending-total").textContent = money(pendingValue);
+  $("approved-total").textContent = money(approved.reduce((sum, item) => sum + contributionValue(item), 0));
+  $("pending-total").textContent = money(pending.reduce((sum, item) => sum + contributionValue(item), 0));
   $("pending-count").textContent = pending.length;
   $("approved-count").textContent = approved.length;
 }
 
-/* ---------------------------------------------------------
-   SUBMIT CONTRIBUTION
---------------------------------------------------------- */
+/* ---------------- SUBMIT CONTRIBUTION ---------------- */
 
 form.addEventListener("submit", async event => {
   event.preventDefault();
@@ -782,22 +533,12 @@ form.addEventListener("submit", async event => {
   const notes = $("notes").value.trim();
 
   if (!studentId) return showMessage("Please select a student.", "error");
-  if (!["money", "items", "labour"].includes(type)) {
-    return showMessage("Select Money, Items, or Labour.", "error");
-  }
+  if (!["money", "items", "labour"].includes(type)) return showMessage("Select Money, Items, or Labour.", "error");
   if (!description) return showMessage("Enter a description.", "error");
-  if (!Number.isFinite(quantity) || quantity <= 0) {
-    return showMessage("Quantity must be greater than zero.", "error");
-  }
-  if (!Number.isFinite(unitValue) || unitValue <= 0) {
-    return showMessage("Unit value must be greater than zero.", "error");
-  }
-  if (!Number.isFinite(value) || value <= 0) {
-    return showMessage("The calculated total must be greater than zero.", "error");
-  }
-  if (!contributionDate) {
-    return showMessage("Select the contribution date.", "error");
-  }
+  if (!Number.isFinite(quantity) || quantity <= 0) return showMessage("Quantity must be greater than zero.", "error");
+  if (!Number.isFinite(unitValue) || unitValue <= 0) return showMessage("Unit value must be greater than zero.", "error");
+  if (!Number.isFinite(value) || value <= 0) return showMessage("The calculated total must be greater than zero.", "error");
+  if (!contributionDate) return showMessage("Select the contribution date.", "error");
 
   const student = students.find(item => String(item.id) === String(studentId));
 
@@ -807,10 +548,9 @@ form.addEventListener("submit", async event => {
     description,
     quantity,
     unitValue,
-    value,
-    agreedValue: value,
     totalValue: value,
-    contributionDate,
+    agreedValue: value,
+    date: contributionDate,   // the Worker reads "date"
     notes
   };
 
@@ -819,10 +559,7 @@ form.addEventListener("submit", async event => {
   $("submit-button").textContent = "Submitting...";
 
   try {
-    await api("/api/contributions", {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
+    await api("/api/contributions", { method: "POST", body: JSON.stringify(payload) });
 
     showMessage(
       `Contribution for ${student?.name || "the selected student"} submitted for approval. Total: ${money(value)}.`,
@@ -843,9 +580,7 @@ form.addEventListener("submit", async event => {
   }
 });
 
-/* ---------------------------------------------------------
-   APPROVE / REJECT
---------------------------------------------------------- */
+/* ---------------- APPROVE / REJECT ---------------- */
 
 table.addEventListener("click", async event => {
   const button = event.target.closest("button[data-action]");
@@ -862,10 +597,13 @@ table.addEventListener("click", async event => {
     return;
   }
 
-  const verb = action === "approve" ? "approve" : "reject";
-  const studentName = contribution.studentName || "this student";
+  if (!confirm(`Are you sure you want to ${action} this ${typeLabel(contribution.type).toLowerCase()} contribution for ${studentNameOf(contribution)}, valued at ${money(contributionValue(contribution))}?`)) {
+    return;
+  }
 
-  if (!confirm(`Are you sure you want to ${verb} this ${typeLabel(contribution.type).toLowerCase()} contribution for ${studentName}, valued at ${money(contributionValue(contribution))}?`)) {
+  const reviewer = getReviewerName();
+  if (!reviewer) {
+    showMessage("Enter your name to approve or reject contributions.", "error");
     return;
   }
 
@@ -874,8 +612,8 @@ table.addEventListener("click", async event => {
 
   try {
     const payload = action === "approve"
-      ? { approvedBy: "Admin" }
-      : { rejectedBy: "Admin" };
+      ? { approvedBy: reviewer }
+      : { rejectedBy: reviewer };
 
     await api(`/api/contributions/${encodeURIComponent(id)}/${action}`, {
       method: "POST",
@@ -884,7 +622,7 @@ table.addEventListener("click", async event => {
 
     showMessage(
       action === "approve"
-        ? "Contribution approved. It should now count toward ownership."
+        ? "Contribution approved. It now counts toward ownership."
         : "Contribution rejected. It will not count toward ownership.",
       "success"
     );
@@ -898,9 +636,7 @@ table.addEventListener("click", async event => {
   }
 });
 
-/* ---------------------------------------------------------
-   SEARCH, FILTERS, REFRESH
---------------------------------------------------------- */
+/* ---------------- SEARCH, FILTERS, REFRESH ---------------- */
 
 $("search").addEventListener("input", renderContributions);
 $("status-filter").addEventListener("change", renderContributions);
