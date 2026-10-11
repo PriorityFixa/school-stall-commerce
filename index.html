@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>School Stall Admin</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -18,46 +15,25 @@
       color: #172033;
     }
 
-    header {
-      background: #172033;
-      color: white;
-      padding: 20px;
-    }
+    header { background: #172033; color: white; padding: 20px; }
+    header h1 { margin: 0; font-size: 24px; }
+    header p { margin: 6px 0 0; opacity: 0.75; font-size: 14px; }
 
-    header h1 {
-      margin: 0;
-      font-size: 24px;
-    }
+    main { width: min(1100px, 94%); margin: 20px auto 50px; }
 
-    header p {
-      margin: 6px 0 0;
-      opacity: 0.75;
-      font-size: 14px;
-    }
-
-    main {
-      width: min(1100px, 94%);
-      margin: 20px auto 50px;
-    }
-
-    /* QUICK NAVIGATION */
-
-    .quick-nav {
+    .quick-nav, .card {
       background: white;
       border-radius: 14px;
       padding: 20px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
 
-    .quick-nav h2 {
-      margin: 0 0 14px;
-      font-size: 18px;
-    }
+    .quick-nav h2, .card h2 { margin: 0 0 14px; font-size: 18px; }
 
     .nav-links {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 12px;
     }
 
@@ -77,14 +53,11 @@
       transition: background 0.2s, transform 0.2s;
     }
 
-    .nav-link:hover {
-      background: #2b3d5d;
-      transform: translateY(-2px);
-    }
+    .nav-link:hover { background: #2b3d5d; transform: translateY(-2px); }
 
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
       gap: 14px;
       margin-bottom: 24px;
     }
@@ -96,53 +69,21 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
 
-    .stat-label {
-      font-size: 13px;
-      color: #697386;
-    }
+    .stat-label { font-size: 13px; color: #697386; }
+    .stat-value { font-size: 24px; font-weight: bold; margin-top: 6px; overflow-wrap: anywhere; }
+    .stat-note { font-size: 11px; color: #697386; margin-top: 4px; }
 
-    .stat-value {
-      font-size: 26px;
-      font-weight: bold;
-      margin-top: 6px;
-    }
+    form { display: grid; gap: 12px; }
+    label { font-size: 14px; font-weight: bold; }
 
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-
-    .card h2 {
-      margin-top: 0;
-    }
-
-    form {
-      display: grid;
-      gap: 12px;
-    }
-
-    label {
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    input,
-    select,
-    button {
+    input, select, button {
       width: 100%;
       padding: 12px;
       border-radius: 8px;
       font-size: 15px;
     }
 
-    input,
-    select {
-      border: 1px solid #d5d9e0;
-      background: white;
-    }
+    input, select { border: 1px solid #d5d9e0; background: white; }
 
     button {
       border: 0;
@@ -152,70 +93,41 @@
       font-weight: bold;
     }
 
-    button:hover {
-      opacity: 0.9;
-    }
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 
     .message {
       padding: 12px;
       border-radius: 8px;
       background: #eef3ff;
+      color: #24467f;
       margin-top: 10px;
       display: none;
       overflow-wrap: anywhere;
     }
 
-    .table-wrapper {
-      overflow-x: auto;
-    }
+    .message.error { background: #fdecea; color: #b42318; }
+    .message.success { background: #e4f6e9; color: #176b36; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 600px;
-    }
+    .table-wrapper { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid #edf0f4; text-align: left; }
+    th { font-size: 13px; color: #697386; }
+    .empty { color: #697386; padding: 20px 0; }
 
-    th,
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #edf0f4;
-      text-align: left;
-    }
-
-    th {
+    .signout {
+      background: transparent;
+      border: 1px solid #ffffff55;
+      width: auto;
+      padding: 6px 12px;
       font-size: 13px;
-      color: #697386;
-    }
-
-    .empty {
-      color: #697386;
-      padding: 20px 0;
+      margin-top: 10px;
     }
 
     @media (max-width: 700px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .nav-links {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .card,
-      .quick-nav {
-        padding: 16px;
-      }
-    }
-
-    @media (max-width: 380px) {
-      .nav-links {
-        grid-template-columns: 1fr;
-      }
+      .card, .quick-nav { padding: 16px; }
     }
   </style>
 </head>
@@ -225,86 +137,37 @@
 <header>
   <h1>School Stall Admin</h1>
   <p>Students, contributions and ownership</p>
+  <button class="signout" id="sign-out" type="button">Lock admin pages</button>
 </header>
 
 <main>
-
-  <!-- QUICK NAVIGATION -->
 
   <section class="quick-nav">
     <h2>Quick Navigation</h2>
 
     <nav class="nav-links" aria-label="Management pages">
-
-      <a
-        class="nav-link"
-        href="frontend/admin/contributions.html">
-        Contributions
-      </a>
-
-      <a
-        class="nav-link"
-        href="frontend/admin/orders.html">
-        Orders
-      </a>
-
-      <a
-        class="nav-link"
-        href="frontend/admin/products.html">
-        Products
-      </a>
-
-      <a
-        class="nav-link"
-        href="frontend/seller.html">
-        Seller Dashboard
-      </a>
-
+      <a class="nav-link" href="frontend/admin/contributions.html">Contributions</a>
+      <a class="nav-link" href="frontend/admin/orders.html">Orders</a>
+      <a class="nav-link" href="frontend/admin/payments.html">Payments</a>
+      <a class="nav-link" href="frontend/admin/products.html">Products</a>
+      <a class="nav-link" href="frontend/seller.html">Seller Dashboard</a>
     </nav>
   </section>
 
-  <!-- DASHBOARD STATS -->
-
-  <section class="dashboard-grid">
-
-    <div class="stat">
-      <div class="stat-label">Students</div>
-      <div class="stat-value" id="student-count">0</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">Approved Capital</div>
-      <div class="stat-value" id="capital-total">KSh 0</div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-label">Pending Contributions</div>
-      <div class="stat-value" id="pending-count">0</div>
-    </div>
-
-  </section>
-
-  <!-- ADD STUDENT -->
+  <section class="dashboard-grid" id="stats"></section>
 
   <section class="card">
-
     <h2>Add Student</h2>
 
     <form id="student-form">
-
       <div>
         <label for="student-name">Student name</label>
-        <input
-          id="student-name"
-          type="text"
-          placeholder="Enter student name"
-          required
-        >
+        <input id="student-name" type="text" placeholder="Enter student name"
+          autocomplete="off" maxlength="120" required>
       </div>
 
       <div>
         <label for="student-role">Role</label>
-
         <select id="student-role">
           <option value="Member">Member</option>
           <option value="Seller">Seller</option>
@@ -314,25 +177,46 @@
         </select>
       </div>
 
-      <button id="add-student-button" type="submit">
-        Add Student
-      </button>
-
+      <button id="add-student-button" type="submit">Add Student</button>
     </form>
 
-    <div
-      id="student-message"
-      class="message"
-      role="status"
-      aria-live="polite">
-    </div>
-
+    <div id="student-message" class="message" role="status" aria-live="polite"></div>
   </section>
 
-  <!-- STUDENTS -->
+  <section class="card">
+    <h2>Record Expense</h2>
+
+    <form id="expense-form">
+      <div class="form-row">
+        <div>
+          <label for="expense-description">Description</label>
+          <input id="expense-description" type="text" maxlength="300"
+            placeholder="e.g. Cooking oil" autocomplete="off" required>
+        </div>
+
+        <div>
+          <label for="expense-amount">Amount (KSh)</label>
+          <input id="expense-amount" type="number" min="0.01" step="0.01" required>
+        </div>
+
+        <div>
+          <label for="expense-category">Category</label>
+          <select id="expense-category">
+            <option value="Supplies">Supplies</option>
+            <option value="Transport">Transport</option>
+            <option value="Equipment">Equipment</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="add-expense-button" type="submit">Record Expense</button>
+    </form>
+
+    <div id="expense-message" class="message" role="status" aria-live="polite"></div>
+  </section>
 
   <section class="card">
-
     <h2>Students</h2>
 
     <div class="table-wrapper">
@@ -345,21 +229,14 @@
             <th>Ownership</th>
           </tr>
         </thead>
-
         <tbody id="students-table">
-          <tr>
-            <td colspan="4" class="empty">Loading students...</td>
-          </tr>
+          <tr><td colspan="4" class="empty">Loading students...</td></tr>
         </tbody>
       </table>
     </div>
-
   </section>
 
-  <!-- OWNERSHIP -->
-
   <section class="card">
-
     <h2>Ownership</h2>
 
     <div class="table-wrapper">
@@ -371,240 +248,31 @@
             <th>Ownership</th>
           </tr>
         </thead>
-
         <tbody id="ownership-table">
-          <tr>
-            <td colspan="3" class="empty">Loading ownership...</td>
-          </tr>
+          <tr><td colspan="3" class="empty">Loading ownership...</td></tr>
         </tbody>
       </table>
     </div>
-
   </section>
 
 </main>
 
+<script src="frontend/admin-auth.js"></script>
 <script>
-const API_URL =
-  "https://school-stall-commerce.priorityfixa.workers.dev";
+"use strict";
 
-const studentForm =
-  document.getElementById("student-form");
+const api = StallAdmin.api;
+const $ = id => document.getElementById(id);
 
-const studentMessage =
-  document.getElementById("student-message");
-
-const addStudentButton =
-  document.getElementById("add-student-button");
-
-
-/* ==========================================================
-   API HELPER
-========================================================== */
-
-async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_URL}${path}`, options);
-
-  const data = await response.json();
-
-  if (!response.ok || !data.success) {
-    throw new Error(
-      data.error || `Request failed (${response.status})`
-    );
-  }
-
-  return data;
-}
-
-
-/* ==========================================================
-   LOAD DASHBOARD
-========================================================== */
-
-async function loadDashboard() {
-  try {
-    const data = await apiRequest("/api/dashboard");
-
-    document.getElementById("student-count").textContent =
-      data.dashboard.students;
-
-    document.getElementById("capital-total").textContent =
-      formatMoney(data.dashboard.totalContributions);
-
-    document.getElementById("pending-count").textContent =
-      data.dashboard.pendingContributions;
-
-  } catch (error) {
-    console.error("Dashboard error:", error);
-
-    document.getElementById("student-count").textContent = "—";
-    document.getElementById("capital-total").textContent = "—";
-    document.getElementById("pending-count").textContent = "—";
-  }
-}
-
-
-/* ==========================================================
-   LOAD STUDENTS
-========================================================== */
-
-async function loadStudents() {
-  const table = document.getElementById("students-table");
-
-  try {
-    const data = await apiRequest("/api/students");
-    const students = data.students || [];
-
-    const ownership = await fetchOwnership();
-
-    table.innerHTML = "";
-
-    if (students.length === 0) {
-      table.innerHTML = `
-        <tr>
-          <td colspan="4" class="empty">
-            No students added yet.
-          </td>
-        </tr>
-      `;
-      return;
-    }
-
-    students.forEach(student => {
-      const owner = ownership.find(
-        item => item.studentId === student.id
-      );
-
-      const percentage = owner
-        ? owner.ownershipPercentage
-        : 0;
-
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>${escapeHtml(student.name)}</td>
-        <td>${escapeHtml(student.role)}</td>
-        <td>${student.active ? "Active" : "Inactive"}</td>
-        <td>${escapeHtml(percentage)}%</td>
-      `;
-
-      table.appendChild(row);
-    });
-
-  } catch (error) {
-    console.error("Students error:", error);
-
-    table.innerHTML = `
-      <tr>
-        <td colspan="4" class="empty">
-          Could not load students. Please refresh the page.
-        </td>
-      </tr>
-    `;
-  }
-}
-
-
-/* ==========================================================
-   LOAD OWNERSHIP
-========================================================== */
-
-async function fetchOwnership() {
-  const data = await apiRequest("/api/students/ownership");
-
-  const ownership = data.ownership || [];
-
-  renderOwnership(ownership);
-
-  return ownership;
-}
-
-
-function renderOwnership(ownership) {
-  const table = document.getElementById("ownership-table");
-
-  table.innerHTML = "";
-
-  if (ownership.length === 0) {
-    table.innerHTML = `
-      <tr>
-        <td colspan="3" class="empty">
-          No approved contributions yet.
-        </td>
-      </tr>
-    `;
-    return;
-  }
-
-  ownership.forEach(item => {
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${escapeHtml(item.studentName)}</td>
-      <td>${formatMoney(item.contributionValue)}</td>
-      <td>${escapeHtml(item.ownershipPercentage)}%</td>
-    `;
-
-    table.appendChild(row);
-  });
-}
-
-
-/* ==========================================================
-   ADD STUDENT
-========================================================== */
-
-studentForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  const name = document
-    .getElementById("student-name")
-    .value.trim();
-
-  const role = document.getElementById("student-role").value;
-
-  if (!name) return;
-
-  studentMessage.style.display = "block";
-  studentMessage.textContent = "Adding student...";
-  addStudentButton.disabled = true;
-
-  try {
-    await apiRequest("/api/students", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ name, role })
-    });
-
-    studentMessage.textContent =
-      `${name} added successfully.`;
-
-    studentForm.reset();
-
-    await refresh();
-
-  } catch (error) {
-    console.error("Add student error:", error);
-
-    studentMessage.textContent =
-      error.message || "Could not add student.";
-
-  } finally {
-    addStudentButton.disabled = false;
-  }
-});
-
-
-/* ==========================================================
-   HELPERS
-========================================================== */
+/* ---------------- helpers ---------------- */
 
 function formatMoney(amount) {
-  return `KSh ${Number(amount || 0).toLocaleString("en-KE")}`;
+  return `KSh ${Number(amount || 0).toLocaleString("en-KE", { maximumFractionDigits: 2 })}`;
 }
 
+function formatPercent(value) {
+  return `${Number(value || 0).toFixed(1)}%`;
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -615,26 +283,196 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-
-/* ==========================================================
-   REFRESH
-========================================================== */
-
-async function refresh() {
-  await Promise.all([
-    loadDashboard(),
-    loadStudents()
-  ]);
+function showMessage(box, text, type) {
+  box.style.display = "block";
+  box.textContent = text;
+  box.className = "message" + (type ? " " + type : "");
 }
 
+/* ---------------- dashboard ---------------- */
 
-/* ==========================================================
-   START
-========================================================== */
+const STATS = [
+  { id: "students", label: "Students", get: d => d.students, fmt: v => v },
+  { id: "capital", label: "Approved Capital", get: d => d.totalContributions, fmt: formatMoney },
+  { id: "pending", label: "Pending Contributions", get: d => d.pendingContributions, fmt: v => v },
+  { id: "sales", label: "Total Sales", note: "Includes unpaid orders", get: d => d.totalSales, fmt: formatMoney },
+  { id: "collected", label: "Cash Collected", note: "Payments actually received", get: d => d.totalCollected, fmt: formatMoney },
+  { id: "outstanding", label: "Outstanding", note: "Owed by customers", get: d => d.totalOutstanding, fmt: formatMoney },
+  { id: "expenses", label: "Expenses", get: d => d.totalExpenses, fmt: formatMoney },
+  { id: "profit", label: "Net Profit", note: "Sales - cost of goods - expenses", get: d => d.netProfit, fmt: formatMoney },
+  { id: "lowstock", label: "Low-Stock Products", get: d => d.lowStockProducts, fmt: v => v }
+];
+
+$("stats").innerHTML = STATS.map(stat => `
+  <div class="stat">
+    <div class="stat-label">${stat.label}</div>
+    <div class="stat-value" id="stat-${stat.id}">0</div>
+    ${stat.note ? `<div class="stat-note">${stat.note}</div>` : ""}
+  </div>
+`).join("");
+
+async function loadDashboard() {
+  try {
+    const data = await api("/api/dashboard");
+
+    STATS.forEach(stat => {
+      $("stat-" + stat.id).textContent = stat.fmt(stat.get(data));
+    });
+  } catch (error) {
+    console.error("Dashboard error:", error);
+    STATS.forEach(stat => { $("stat-" + stat.id).textContent = "—"; });
+  }
+}
+
+/* ---------------- ownership ---------------- */
+
+let ownershipData = [];
+
+async function loadOwnership() {
+  const table = $("ownership-table");
+
+  try {
+    const data = await api("/api/students/ownership");
+    ownershipData = data.ownership || [];
+
+    if (!ownershipData.length || !Number(data.totalApprovedContribution)) {
+      table.innerHTML = `
+        <tr><td colspan="3" class="empty">No approved contributions yet.</td></tr>`;
+      return;
+    }
+
+    table.innerHTML = ownershipData.map(item => `
+      <tr>
+        <td>${escapeHtml(item.studentName)}</td>
+        <td>${formatMoney(item.contribution)}</td>
+        <td>${formatPercent(item.ownershipPercentage)}</td>
+      </tr>
+    `).join("");
+  } catch (error) {
+    console.error("Ownership error:", error);
+    ownershipData = [];
+    table.innerHTML = `
+      <tr><td colspan="3" class="empty">Could not load ownership. ${escapeHtml(error.message)}</td></tr>`;
+  }
+}
+
+/* ---------------- students ---------------- */
+
+async function loadStudents() {
+  const table = $("students-table");
+
+  try {
+    const data = await api("/api/students");
+    const students = data.students || [];
+
+    if (!students.length) {
+      table.innerHTML = `<tr><td colspan="4" class="empty">No students added yet.</td></tr>`;
+      return;
+    }
+
+    table.innerHTML = students.map(student => {
+      const owner = ownershipData.find(item => item.studentId === student.id);
+      const percentage = owner ? owner.ownershipPercentage : 0;
+      const active = student.status
+        ? String(student.status).toLowerCase() === "active"
+        : student.active !== false;
+
+      return `
+        <tr>
+          <td>${escapeHtml(student.name)}</td>
+          <td>${escapeHtml(student.role)}</td>
+          <td>${active ? "Active" : "Inactive"}</td>
+          <td>${formatPercent(percentage)}</td>
+        </tr>`;
+    }).join("");
+  } catch (error) {
+    console.error("Students error:", error);
+    table.innerHTML = `
+      <tr><td colspan="4" class="empty">Could not load students. ${escapeHtml(error.message)}</td></tr>`;
+  }
+}
+
+/* ---------------- add student ---------------- */
+
+$("student-form").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const name = $("student-name").value.trim();
+  const role = $("student-role").value;
+  if (!name) return;
+
+  const box = $("student-message");
+  showMessage(box, "Adding student...");
+  $("add-student-button").disabled = true;
+
+  try {
+    await api("/api/students", {
+      method: "POST",
+      body: JSON.stringify({ name, role })
+    });
+
+    showMessage(box, `${name} added successfully.`, "success");
+    $("student-form").reset();
+    await refresh();
+  } catch (error) {
+    showMessage(box, error.message || "Could not add student.", "error");
+  } finally {
+    $("add-student-button").disabled = false;
+  }
+});
+
+/* ---------------- add expense ---------------- */
+
+$("expense-form").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const description = $("expense-description").value.trim();
+  const amount = Number($("expense-amount").value);
+  const category = $("expense-category").value;
+  const box = $("expense-message");
+
+  if (!description || !Number.isFinite(amount) || amount <= 0) {
+    showMessage(box, "Enter a description and an amount greater than zero.", "error");
+    return;
+  }
+
+  showMessage(box, "Recording expense...");
+  $("add-expense-button").disabled = true;
+
+  try {
+    await api("/api/expenses", {
+      method: "POST",
+      body: JSON.stringify({ description, amount, category })
+    });
+
+    showMessage(box, `Expense recorded: ${formatMoney(amount)}.`, "success");
+    $("expense-form").reset();
+    await loadDashboard();
+  } catch (error) {
+    showMessage(box, error.message || "Could not record expense.", "error");
+  } finally {
+    $("add-expense-button").disabled = false;
+  }
+});
+
+/* ---------------- lock ---------------- */
+
+$("sign-out").addEventListener("click", () => {
+  StallAdmin.signOut();
+  alert("Admin pages locked. The PIN will be requested again on the next action.");
+  location.reload();
+});
+
+/* ---------------- start ---------------- */
+
+async function refresh() {
+  // Load ownership first so the students table can show percentages.
+  await Promise.allSettled([loadDashboard(), loadOwnership()]);
+  await loadStudents();
+}
 
 refresh();
 </script>
 
 </body>
 </html>
-```
