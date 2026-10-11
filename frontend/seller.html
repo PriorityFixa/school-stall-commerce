@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,384 +9,113 @@
     * { box-sizing: border-box; }
 
     :root {
-      --navy: #172033;
-      --green: #18794e;
-      --gold: #d7a944;
-      --paper: #f5f6f8;
-      --muted: #687386;
-      --border: #e4e8ee;
+      --navy: #172033; --green: #18794e; --gold: #d7a944;
+      --paper: #f5f6f8; --muted: #687386; --border: #e4e8ee;
     }
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--paper);
-      color: var(--navy);
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: var(--paper); color: var(--navy); }
 
-    header {
-      background: var(--navy);
-      color: white;
-      padding: 18px;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-    }
-
+    header { background: var(--navy); color: white; padding: 18px; position: sticky; top: 0; z-index: 20; }
     header h1 { margin: 0; font-size: 21px; }
+    header p { margin: 5px 0 0; font-size: 13px; opacity: .75; }
 
-    header p {
-      margin: 5px 0 0;
-      font-size: 13px;
-      opacity: .75;
-    }
-
-    nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
+    nav { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 
     nav a {
-      display: inline-block;
-      text-decoration: none;
-      color: white;
-      border: 1px solid #ffffff45;
-      border-radius: 8px;
-      padding: 9px 11px;
-      font-size: 13px;
+      display: inline-block; text-decoration: none; color: white;
+      border: 1px solid #ffffff45; border-radius: 8px; padding: 9px 11px; font-size: 13px;
     }
 
-    nav a.active {
-      background: var(--gold);
-      color: #172033;
-      border-color: var(--gold);
-      font-weight: bold;
+    nav a.active { background: var(--gold); color: #172033; border-color: var(--gold); font-weight: bold; }
+
+    main { max-width: 1000px; margin: auto; padding: 15px; padding-bottom: 70px; }
+
+    .section-title { font-size: 18px; margin: 20px 0 12px; }
+
+    .products { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+    .product { background: white; border-radius: 13px; padding: 14px; box-shadow: 0 2px 10px #0000000d; }
+    .product-name { font-weight: bold; font-size: 15px; margin-bottom: 7px; }
+    .product-price { font-size: 14px; margin-bottom: 12px; }
+    .stock { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+    button { border: none; border-radius: 9px; padding: 11px 13px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+
+    .add-button { width: 100%; background: var(--navy); color: white; }
+
+    .cart, .checkout-card, .payment-card, .pin-card {
+      background: white; border-radius: 14px; margin-top: 20px; padding: 16px; box-shadow: 0 2px 12px #0000000f;
     }
 
-    main {
-      max-width: 1000px;
-      margin: auto;
-      padding: 15px;
-      padding-bottom: 70px;
-    }
+    .pin-card { margin-top: 0; border-left: 5px solid var(--gold); }
 
-    .section-title {
-      font-size: 18px;
-      margin: 20px 0 12px;
-    }
-
-    .products {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
-    .product {
-      background: white;
-      border-radius: 13px;
-      padding: 14px;
-      box-shadow: 0 2px 10px #0000000d;
-    }
-
-    .product-name {
-      font-weight: bold;
-      font-size: 15px;
-      margin-bottom: 7px;
-    }
-
-    .product-price {
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
-
-    .stock {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    button {
-      border: none;
-      border-radius: 9px;
-      padding: 11px 13px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    button:disabled {
-      opacity: .6;
-      cursor: not-allowed;
-    }
-
-    .add-button {
-      width: 100%;
-      background: var(--navy);
-      color: white;
-    }
-
-    .cart, .checkout-card, .payment-card {
-      background: white;
-      border-radius: 14px;
-      margin-top: 20px;
-      padding: 16px;
-      box-shadow: 0 2px 12px #0000000f;
-    }
-
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 0;
-      border-bottom: 1px solid #edf0f3;
-    }
-
+    .cart-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid #edf0f3; }
     .cart-item:last-child { border-bottom: none; }
-
     .item-name { font-weight: bold; }
+    .item-details { font-size: 13px; color: var(--muted); margin-top: 4px; }
 
-    .item-details {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 4px;
-    }
+    .quantity-controls { display: flex; align-items: center; gap: 6px; }
+    .quantity-controls button { width: 32px; height: 32px; padding: 0; background: #e9edf3; color: var(--navy); }
+    .quantity { min-width: 25px; text-align: center; font-weight: bold; }
 
-    .quantity-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .cart-total { display: flex; justify-content: space-between; gap: 10px; font-size: 19px; font-weight: bold; padding-top: 15px; margin-top: 10px; border-top: 2px solid var(--navy); }
 
-    .quantity-controls button {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      background: #e9edf3;
-      color: var(--navy);
-    }
+    label { display: block; font-weight: bold; font-size: 14px; margin: 13px 0 6px; }
 
-    .quantity {
-      min-width: 25px;
-      text-align: center;
-      font-weight: bold;
-    }
+    input, select { width: 100%; padding: 12px; border: 1px solid #d8dce3; border-radius: 9px; font-size: 15px; background: white; color: var(--navy); }
+    input:focus, select:focus { outline: 2px solid #d7a94480; border-color: var(--gold); }
 
-    .cart-total {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 19px;
-      font-weight: bold;
-      padding-top: 15px;
-      margin-top: 10px;
-      border-top: 2px solid var(--navy);
-    }
+    .submit-button { width: 100%; margin-top: 18px; padding: 15px; background: var(--green); color: white; font-size: 16px; }
+    .secondary-button { background: var(--navy); color: white; }
+    .gold-button { background: var(--gold); color: var(--navy); }
 
-    label {
-      display: block;
-      font-weight: bold;
-      font-size: 14px;
-      margin: 13px 0 6px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #d8dce3;
-      border-radius: 9px;
-      font-size: 15px;
-      background: white;
-      color: var(--navy);
-    }
-
-    input:focus, select:focus {
-      outline: 2px solid #d7a94480;
-      border-color: var(--gold);
-    }
-
-    .submit-button {
-      width: 100%;
-      margin-top: 18px;
-      padding: 15px;
-      background: var(--green);
-      color: white;
-      font-size: 16px;
-    }
-
-    .secondary-button {
-      background: var(--navy);
-      color: white;
-    }
-
-    .gold-button {
-      background: var(--gold);
-      color: var(--navy);
-    }
-
-    .message {
-      display: none;
-      padding: 13px;
-      border-radius: 9px;
-      margin-top: 14px;
-      font-size: 14px;
-      overflow-wrap: anywhere;
-    }
-
+    .message { display: none; padding: 13px; border-radius: 9px; margin-top: 14px; font-size: 14px; overflow-wrap: anywhere; }
     .message.show { display: block; }
     .success { background: #e7f6ed; color: #17633f; }
     .error { background: #fdecec; color: #a61b1b; }
     .info { background: #edf3fc; color: #234c80; }
 
-    .empty {
-      background: white;
-      padding: 22px;
-      border-radius: 13px;
-      text-align: center;
-      color: var(--muted);
-    }
+    .empty { background: white; padding: 22px; border-radius: 13px; text-align: center; color: var(--muted); }
+    .help-text { font-size: 13px; color: var(--muted); line-height: 1.5; }
 
-    .help-text {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
+    .payment-toolbar { margin-top: 10px; }
+    .payment-toolbar button { width: 100%; }
 
-    .payment-toolbar {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: end;
-      gap: 10px;
-    }
+    .order-card { border: 1px solid var(--border); border-radius: 11px; padding: 14px; margin: 12px 0; }
+    .order-card-top { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+    .order-number { font-size: 16px; font-weight: bold; overflow-wrap: anywhere; }
+    .order-customer { font-size: 13px; color: var(--muted); margin-top: 5px; }
 
-    .payment-toolbar label { margin-top: 0; }
+    .status-pill { display: inline-block; padding: 5px 8px; border-radius: 20px; background: #fff0cc; color: #76500a; font-size: 11px; font-weight: bold; white-space: nowrap; }
 
-    .order-card {
-      border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 14px;
-      margin: 12px 0;
-    }
-
-    .order-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-      gap: 12px;
-    }
-
-    .order-number {
-      font-size: 16px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-    }
-
-    .order-customer {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 5px;
-    }
-
-    .status-pill {
-      display: inline-block;
-      padding: 5px 8px;
-      border-radius: 20px;
-      background: #fff0cc;
-      color: #76500a;
-      font-size: 11px;
-      font-weight: bold;
-      white-space: nowrap;
-    }
-
-    .order-summary {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      margin: 14px 0;
-    }
-
-    .summary-cell {
-      padding: 10px;
-      background: #f6f8fb;
-      border-radius: 8px;
-      min-width: 0;
-    }
-
-    .summary-label {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      margin-bottom: 5px;
-    }
-
-    .summary-value {
-      font-weight: bold;
-      font-size: 13px;
-      overflow-wrap: anywhere;
-    }
-
+    .order-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 14px 0; }
+    .summary-cell { padding: 10px; background: #f6f8fb; border-radius: 8px; min-width: 0; }
+    .summary-label { display: block; color: var(--muted); font-size: 11px; margin-bottom: 5px; }
+    .summary-value { font-weight: bold; font-size: 13px; overflow-wrap: anywhere; }
     .balance-value { color: #a61b1b; }
 
-    .choose-order {
-      width: 100%;
-      background: var(--navy);
-      color: white;
-    }
+    .choose-order { width: 100%; background: var(--navy); color: white; }
 
-    .payment-form {
-      border-top: 1px solid var(--border);
-      margin-top: 18px;
-      padding-top: 8px;
-    }
-
+    .payment-form { border-top: 1px solid var(--border); margin-top: 18px; padding-top: 8px; }
     .payment-form[hidden] { display: none; }
 
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 
-    .payment-note {
-      padding: 12px;
-      background: #fff8e6;
-      color: #76500a;
-      border-radius: 9px;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-top: 12px;
-    }
+    .payment-note { padding: 12px; background: #fff8e6; color: #76500a; border-radius: 9px; font-size: 13px; line-height: 1.5; margin-top: 12px; }
 
-    .payment-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
+    .payment-actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .payment-actions button { flex: 1; }
 
     @media (min-width: 650px) {
-      .products {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
+      .products { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
 
     @media (max-width: 520px) {
-      .payment-toolbar,
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .payment-toolbar button { width: 100%; }
-
+      .form-grid { grid-template-columns: 1fr; }
       .order-summary { gap: 5px; }
-
       .summary-cell { padding: 8px 6px; }
-
       .summary-value { font-size: 12px; }
-
       .order-card-top { flex-direction: column; }
     }
   </style>
@@ -405,6 +133,17 @@
 </header>
 
 <main>
+  <!-- SELLER PIN (used for cash orders and later payments) -->
+  <section class="pin-card">
+    <label for="sellerPin" style="margin-top:0">Seller PIN</label>
+    <input id="sellerPin" type="password" autocomplete="current-password"
+      placeholder="PIN supplied by the administrator">
+    <p class="help-text">
+      Required to record cash orders and to collect later payments.
+      It stays in this browser tab only.
+    </p>
+  </section>
+
   <!-- PRODUCTS -->
   <section id="productsSection">
     <h2 class="section-title">Products</h2>
@@ -433,12 +172,10 @@
 
     <form id="orderForm">
       <label for="customerName">Customer Name</label>
-      <input id="customerName" type="text" maxlength="120"
-        placeholder="Optional">
+      <input id="customerName" type="text" maxlength="120" placeholder="Optional">
 
       <label for="customerPhone">Customer Phone</label>
-      <input id="customerPhone" type="tel" maxlength="30"
-        placeholder="Optional">
+      <input id="customerPhone" type="tel" maxlength="30" placeholder="Optional">
 
       <label for="paymentMethod">Payment Method</label>
       <select id="paymentMethod">
@@ -459,8 +196,7 @@
         Record Order
       </button>
 
-      <div id="message" class="message" role="status"
-        aria-live="polite"></div>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
     </form>
   </section>
 
@@ -475,26 +211,17 @@
     </p>
 
     <div class="payment-toolbar">
-      <div>
-        <label for="paymentPin">Payment access PIN</label>
-        <input id="paymentPin" type="password"
-          autocomplete="current-password"
-          placeholder="PIN supplied by the administrator">
-      </div>
       <button id="loadUnpaidOrders" type="button" class="gold-button">
         Load Orders
       </button>
     </div>
 
-    <div id="paymentMessage" class="message" role="status"
-      aria-live="polite"></div>
+    <div id="paymentMessage" class="message" role="status" aria-live="polite"></div>
 
     <h3 class="section-title">Outstanding Orders</h3>
 
     <div id="outstandingOrders">
-      <div class="empty">
-        Enter your payment PIN and select Load Orders.
-      </div>
+      <div class="empty">Enter your seller PIN above and select Load Orders.</div>
     </div>
 
     <form id="laterPaymentForm" class="payment-form" hidden>
@@ -507,8 +234,7 @@
       <div class="form-grid">
         <div>
           <label for="laterPaymentAmount">Amount Received (KES)</label>
-          <input id="laterPaymentAmount" type="number"
-            min="0.01" step="0.01" required>
+          <input id="laterPaymentAmount" type="number" min="0.01" step="0.01" required>
         </div>
 
         <div>
@@ -521,27 +247,25 @@
       </div>
 
       <label for="laterPaymentReference">
-        Receipt / Reference (optional)
+        Receipt / Reference (required for M-Pesa)
       </label>
-      <input id="laterPaymentReference" type="text"
-        maxlength="120" placeholder="M-Pesa receipt number">
+      <input id="laterPaymentReference" type="text" maxlength="120"
+        placeholder="M-Pesa receipt number">
 
       <label for="paymentRecordedBy">Recorded By</label>
-      <input id="paymentRecordedBy" type="text"
-        maxlength="100" placeholder="Your name" required>
+      <input id="paymentRecordedBy" type="text" maxlength="100"
+        placeholder="Your name" required>
 
       <div id="laterPaymentHint" class="payment-note">
         Select an order to view its balance.
       </div>
 
       <div class="payment-actions">
-        <button type="submit" id="saveLaterPayment"
-          class="submit-button">
+        <button type="submit" id="saveLaterPayment" class="submit-button">
           Save Payment
         </button>
 
-        <button type="button" id="cancelLaterPayment"
-          class="secondary-button">
+        <button type="button" id="cancelLaterPayment" class="secondary-button">
           Cancel
         </button>
       </div>
@@ -550,24 +274,28 @@
 </main>
 
 <script>
-  /* ========================================================
-     API CONFIGURATION
-  ======================================================== */
+  "use strict";
 
-  const API_URL =
-    "https://school-stall-commerce.priorityfixa.workers.dev";
-
-  /* ========================================================
-     STATE
-  ======================================================== */
+  const API_URL = "https://school-stall-commerce.priorityfixa.workers.dev";
 
   let products = [];
   let cart = [];
   let outstandingOrders = [];
 
-  /* ========================================================
-     MONEY AND HTML SAFETY
-  ======================================================== */
+  /* ---------------- PIN ---------------- */
+
+  const pinInput = document.getElementById("sellerPin");
+  pinInput.value = sessionStorage.getItem("stallSellerPin") || "";
+
+  pinInput.addEventListener("input", () => {
+    sessionStorage.setItem("stallSellerPin", pinInput.value.trim());
+  });
+
+  function getPin() {
+    return pinInput.value.trim();
+  }
+
+  /* ---------------- HELPERS ---------------- */
 
   function money(amount) {
     return "KES " + Number(amount || 0).toLocaleString("en-KE", {
@@ -578,11 +306,7 @@
 
   function escapeHtml(value) {
     return String(value ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
     })[char]);
   }
 
@@ -592,26 +316,21 @@
     box.className = "message show " + type;
   }
 
-  /* ========================================================
-     LOAD PRODUCTS
-  ======================================================== */
+  /* ---------------- LOAD PRODUCTS (public list, no cost prices) ---------------- */
 
   async function loadProducts() {
     const container = document.getElementById("products");
 
     try {
-      const response = await fetch(API_URL + "/api/products");
+      const response = await fetch(API_URL + "/api/products/public");
       const data = await response.json();
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || "Unable to load products.");
       }
 
-      products = (data.products || []).filter(
-        product => product.active !== false
-      );
+      products = (data.products || []).filter(product => product.active !== false);
 
-      // Remove cart lines for products no longer available.
       cart = cart.filter(item =>
         products.some(product => product.id === item.productId)
       );
@@ -630,34 +349,25 @@
     }
   }
 
-  /* ========================================================
-     RENDER PRODUCTS
-  ======================================================== */
-
   function renderProducts() {
     const container = document.getElementById("products");
 
     if (!products.length) {
-      container.innerHTML =
-        '<div class="empty">No products are available.</div>';
+      container.innerHTML = '<div class="empty">No products are available.</div>';
       return;
     }
 
     container.innerHTML = products.map(product => {
       const stock = Math.max(0, Number(product.stockQuantity) || 0);
-      const productId = escapeHtml(product.id);
 
       return `
         <article class="product">
           <div class="product-name">${escapeHtml(product.name)}</div>
           <div class="product-price">${money(product.sellingPrice)}</div>
           <div class="stock">${stock} available</div>
-          <button
-            class="add-button"
-            type="button"
-            data-add-product="${productId}"
-            ${stock <= 0 ? "disabled" : ""}
-          >
+          <button class="add-button" type="button"
+            data-add-product="${escapeHtml(product.id)}"
+            ${stock <= 0 ? "disabled" : ""}>
             ${stock <= 0 ? "Out of Stock" : "Add to Order"}
           </button>
         </article>
@@ -665,15 +375,11 @@
     }).join("");
 
     container.querySelectorAll("[data-add-product]").forEach(button => {
-      button.addEventListener("click", () => {
-        addToCart(button.dataset.addProduct);
-      });
+      button.addEventListener("click", () => addToCart(button.dataset.addProduct));
     });
   }
 
-  /* ========================================================
-     CART OPERATIONS
-  ======================================================== */
+  /* ---------------- CART ---------------- */
 
   function addToCart(productId) {
     const product = products.find(item => item.id === productId);
@@ -731,8 +437,7 @@
 
   function calculateTotal() {
     return cart.reduce(
-      (sum, item) =>
-        sum + Number(item.sellingPrice) * Number(item.quantity),
+      (sum, item) => sum + Number(item.sellingPrice) * Number(item.quantity),
       0
     );
   }
@@ -741,8 +446,7 @@
     const container = document.getElementById("cartItems");
 
     if (!cart.length) {
-      container.innerHTML =
-        '<div class="empty">No items added yet.</div>';
+      container.innerHTML = '<div class="empty">No items added yet.</div>';
       document.getElementById("cartTotal").textContent = money(0);
       return;
     }
@@ -758,14 +462,12 @@
         </div>
 
         <div class="quantity-controls">
-          <button type="button"
-            data-change-product="${escapeHtml(item.productId)}"
+          <button type="button" data-change-product="${escapeHtml(item.productId)}"
             data-change="-1" aria-label="Decrease quantity">−</button>
 
           <span class="quantity">${item.quantity}</span>
 
-          <button type="button"
-            data-change-product="${escapeHtml(item.productId)}"
+          <button type="button" data-change-product="${escapeHtml(item.productId)}"
             data-change="1" aria-label="Increase quantity">+</button>
         </div>
       </div>
@@ -773,43 +475,30 @@
 
     container.querySelectorAll("[data-change-product]").forEach(button => {
       button.addEventListener("click", () => {
-        changeQuantity(
-          button.dataset.changeProduct,
-          Number(button.dataset.change)
-        );
+        changeQuantity(button.dataset.changeProduct, Number(button.dataset.change));
       });
     });
 
-    document.getElementById("cartTotal").textContent =
-      money(calculateTotal());
+    document.getElementById("cartTotal").textContent = money(calculateTotal());
   }
 
-  /* ========================================================
-     ORDER PAYMENT METHOD HELP
-  ======================================================== */
+  /* ---------------- PAYMENT METHOD HINT ---------------- */
 
   document.getElementById("paymentMethod").addEventListener("change", () => {
     const method = document.getElementById("paymentMethod").value;
-    const hint = document.getElementById("paymentMethodHint");
 
     const messages = {
-      cash: "Cash orders are recorded as paid immediately.",
+      cash: "Cash orders are recorded as paid immediately. The seller PIN is required.",
       mpesa: "M-Pesa orders remain pending until payment is confirmed.",
       credit: "Pay Later orders are recorded with an outstanding balance."
     };
 
-    hint.textContent = messages[method] || "";
+    document.getElementById("paymentMethodHint").textContent = messages[method] || "";
   });
 
-  /* ========================================================
-     CREATE A NEW ORDER
-     Existing POST /api/orders route is retained.
-  ======================================================== */
+  /* ---------------- CREATE A NEW ORDER ---------------- */
 
-  document.getElementById("orderForm").addEventListener(
-    "submit",
-    submitOrder
-  );
+  document.getElementById("orderForm").addEventListener("submit", submitOrder);
 
   async function submitOrder(event) {
     event.preventDefault();
@@ -819,31 +508,33 @@
       return;
     }
 
-    const sellerName =
-      document.getElementById("sellerName").value.trim();
+    const sellerName = document.getElementById("sellerName").value.trim();
 
     if (!sellerName) {
       showMessage("message", "Enter the seller name.", "error");
       return;
     }
 
-    const customerName =
-      document.getElementById("customerName").value.trim();
+    const customerName = document.getElementById("customerName").value.trim();
+    const customerPhone = document.getElementById("customerPhone").value.trim();
+    const paymentMethod = document.getElementById("paymentMethod").value;
 
-    const customerPhone =
-      document.getElementById("customerPhone").value.trim();
-
-    const paymentMethod =
-      document.getElementById("paymentMethod").value;
+    if (paymentMethod === "cash" && !getPin()) {
+      showMessage("message", "Enter the seller PIN at the top of the page to record a cash order.", "error");
+      return;
+    }
 
     const button = document.getElementById("submitOrder");
     button.disabled = true;
     button.textContent = "Saving Order...";
 
     try {
+      const headers = { "Content-Type": "application/json" };
+      if (getPin()) headers["X-Stall-Pin"] = getPin();
+
       const response = await fetch(API_URL + "/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           sellerName,
           customerName,
@@ -869,10 +560,9 @@
         paymentMethod === "credit" ? "UNPAID" : "PENDING"
       );
 
-      let confirmation =
-        `Order recorded successfully. Order ID: ${orderId}. Status: ${status}.`;
+      let confirmation = `Order recorded successfully. Order ID: ${orderId}. Status: ${status}.`;
 
-      if (paymentMethod === "credit") {
+      if (paymentMethod !== "cash") {
         confirmation += " You can record later payments in the section below.";
       }
 
@@ -886,8 +576,8 @@
 
       await loadProducts();
 
-      // Refresh outstanding orders if a payment PIN is already entered.
-      if (document.getElementById("paymentPin").value.trim()) {
+      // Refresh the outstanding list quietly when a PIN is available.
+      if (getPin()) {
         await loadOutstandingOrders(false);
       }
     } catch (error) {
@@ -899,15 +589,13 @@
     }
   }
 
-  /* ========================================================
-     LATER PAYMENT API
-  ======================================================== */
+  /* ---------------- LATER PAYMENT API ---------------- */
 
   async function paymentApiRequest(path, options = {}) {
-    const pin = document.getElementById("paymentPin").value.trim();
+    const pin = getPin();
 
     if (!pin) {
-      throw new Error("Enter the payment access PIN first.");
+      throw new Error("Enter the seller PIN at the top of the page first.");
     }
 
     const response = await fetch(API_URL + path, {
@@ -928,9 +616,7 @@
     return data;
   }
 
-  /* ========================================================
-     LOAD OUTSTANDING ORDERS
-  ======================================================== */
+  /* ---------------- LOAD OUTSTANDING ORDERS ---------------- */
 
   document.getElementById("loadUnpaidOrders").addEventListener(
     "click",
@@ -963,13 +649,9 @@
     } catch (error) {
       console.error("LOAD_OUTSTANDING_ORDERS_ERROR", error);
 
-      container.innerHTML = `
-        <div class="empty">${escapeHtml(error.message)}</div>
-      `;
+      container.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
 
-      if (showStatus) {
-        showMessage("paymentMessage", error.message, "error");
-      }
+      if (showStatus) showMessage("paymentMessage", error.message, "error");
     } finally {
       if (showStatus) {
         button.disabled = false;
@@ -978,25 +660,17 @@
     }
   }
 
-  /* ========================================================
-     DISPLAY OUTSTANDING ORDERS
-  ======================================================== */
-
   function renderOutstandingOrders() {
     const container = document.getElementById("outstandingOrders");
 
     if (!outstandingOrders.length) {
-      container.innerHTML = `
-        <div class="empty">
-          No outstanding orders found.
-        </div>
-      `;
+      container.innerHTML = '<div class="empty">No outstanding orders found.</div>';
       closePaymentForm();
       return;
     }
 
     container.innerHTML = outstandingOrders.map(order => {
-      const status = order.paymentStatus || "UNPAID";
+      const status = String(order.paymentStatus || "UNPAID").replace("_", " ");
 
       return `
         <article class="order-card">
@@ -1004,7 +678,7 @@
             <div>
               <div class="order-number">${escapeHtml(order.id)}</div>
               <div class="order-customer">
-                Customer: ${escapeHtml(order.customerName || "Not specified")}
+                Customer: ${escapeHtml(order.customerName || "Not specified")}${order.customerClass ? " · " + escapeHtml(order.customerClass) : ""}
               </div>
               <div class="order-customer">
                 Seller: ${escapeHtml(order.sellerName || "Not specified")}
@@ -1028,8 +702,7 @@
             </div>
           </div>
 
-          <button type="button"
-            class="choose-order"
+          <button type="button" class="choose-order"
             data-select-order="${escapeHtml(order.id)}">
             Record Payment for This Order
           </button>
@@ -1038,15 +711,11 @@
     }).join("");
 
     container.querySelectorAll("[data-select-order]").forEach(button => {
-      button.addEventListener("click", () => {
-        openPaymentForm(button.dataset.selectOrder);
-      });
+      button.addEventListener("click", () => openPaymentForm(button.dataset.selectOrder));
     });
   }
 
-  /* ========================================================
-     SELECT AN ORDER TO PAY
-  ======================================================== */
+  /* ---------------- SELECT AN ORDER TO PAY ---------------- */
 
   function openPaymentForm(orderId) {
     const order = outstandingOrders.find(item => item.id === orderId);
@@ -1083,120 +752,97 @@
     document.getElementById("selectedOrderId").value = "";
   }
 
-  document.getElementById("cancelLaterPayment").addEventListener(
-    "click",
-    closePaymentForm
-  );
+  document.getElementById("cancelLaterPayment").addEventListener("click", closePaymentForm);
 
-  /* ========================================================
-     SAVE A LATER PAYMENT
-     This calls the payment endpoint only.
-     It does NOT create an order or adjust stock.
-  ======================================================== */
+  /* ---------------- SAVE A LATER PAYMENT ---------------- */
 
-  document.getElementById("laterPaymentForm").addEventListener(
-    "submit",
-    async event => {
-      event.preventDefault();
+  document.getElementById("laterPaymentForm").addEventListener("submit", async event => {
+    event.preventDefault();
 
-      const orderId =
-        document.getElementById("selectedOrderId").value;
+    const orderId = document.getElementById("selectedOrderId").value;
+    const order = outstandingOrders.find(item => item.id === orderId);
 
-      const order =
-        outstandingOrders.find(item => item.id === orderId);
-
-      if (!order) {
-        showMessage("paymentMessage", "Select an outstanding order first.", "error");
-        return;
-      }
-
-      const amount =
-        Number(document.getElementById("laterPaymentAmount").value);
-
-      const method =
-        document.getElementById("laterPaymentMethod").value;
-
-      const reference =
-        document.getElementById("laterPaymentReference").value.trim();
-
-      const recordedBy =
-        document.getElementById("paymentRecordedBy").value.trim();
-
-      if (!Number.isFinite(amount) || amount <= 0) {
-        showMessage("paymentMessage", "Enter a valid payment amount.", "error");
-        return;
-      }
-
-      if (amount > Number(order.balance) + 0.001) {
-        showMessage(
-          "paymentMessage",
-          `Amount exceeds the outstanding balance of ${money(order.balance)}.`,
-          "error"
-        );
-        return;
-      }
-
-      if (!recordedBy) {
-        showMessage("paymentMessage", "Enter your name.", "error");
-        return;
-      }
-
-      if (
-        method === "mpesa" &&
-        !window.confirm(
-          "Have you confirmed that the M-Pesa payment was actually received? " +
-          "Only continue if you have verified it."
-        )
-      ) {
-        return;
-      }
-
-      const button = document.getElementById("saveLaterPayment");
-      button.disabled = true;
-      button.textContent = "Saving Payment...";
-
-      try {
-        const data = await paymentApiRequest(
-          "/api/orders/" + encodeURIComponent(orderId) + "/payments",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              amount,
-              method,
-              reference,
-              recordedBy
-            })
-          }
-        );
-
-        const updatedOrder = data.order || {};
-        const remaining = Number(updatedOrder.balance) || 0;
-
-        showMessage(
-          "paymentMessage",
-          `${data.message || "Payment recorded."} ` +
-          `Paid so far: ${money(updatedOrder.amountPaid)}. ` +
-          `Remaining balance: ${money(remaining)}.`,
-          "success"
-        );
-
-        closePaymentForm();
-
-        // Reload the saved balances from the Worker.
-        await loadOutstandingOrders(false);
-      } catch (error) {
-        console.error("SAVE_LATER_PAYMENT_ERROR", error);
-        showMessage("paymentMessage", error.message, "error");
-      } finally {
-        button.disabled = false;
-        button.textContent = "Save Payment";
-      }
+    if (!order) {
+      showMessage("paymentMessage", "Select an outstanding order first.", "error");
+      return;
     }
-  );
 
-  /* ========================================================
-     START
-  ======================================================== */
+    const amount = Number(document.getElementById("laterPaymentAmount").value);
+    const method = document.getElementById("laterPaymentMethod").value;
+    const reference = document.getElementById("laterPaymentReference").value.trim();
+    const recordedBy = document.getElementById("paymentRecordedBy").value.trim();
+
+    if (!Number.isFinite(amount) || amount <= 0) {
+      showMessage("paymentMessage", "Enter a valid payment amount.", "error");
+      return;
+    }
+
+    if (amount > Number(order.balance) + 0.001) {
+      showMessage(
+        "paymentMessage",
+        `Amount exceeds the outstanding balance of ${money(order.balance)}.`,
+        "error"
+      );
+      return;
+    }
+
+    if (!recordedBy) {
+      showMessage("paymentMessage", "Enter your name.", "error");
+      return;
+    }
+
+    if (method === "mpesa" && !reference) {
+      showMessage("paymentMessage", "Enter the M-Pesa receipt number before saving.", "error");
+      return;
+    }
+
+    if (
+      method === "mpesa" &&
+      !window.confirm(
+        "Have you confirmed that the M-Pesa payment was actually received? " +
+        "Only continue if you have verified it."
+      )
+    ) {
+      return;
+    }
+
+    const button = document.getElementById("saveLaterPayment");
+    button.disabled = true;
+    button.textContent = "Saving Payment...";
+
+    try {
+      const data = await paymentApiRequest(
+        "/api/orders/" + encodeURIComponent(orderId) + "/payments",
+        {
+          method: "POST",
+          body: JSON.stringify({ amount, method, reference, recordedBy })
+        }
+      );
+
+      const updatedOrder = data.order || {};
+      const remaining = Number(updatedOrder.balance) || 0;
+
+      closePaymentForm();
+
+      await loadOutstandingOrders(false);
+
+      showMessage(
+        "paymentMessage",
+        `${data.message || "Payment recorded."} ` +
+        `Paid so far: ${money(updatedOrder.amountPaid)}. ` +
+        `Remaining balance: ${money(remaining)}.`,
+        "success"
+      );
+    } catch (error) {
+      console.error("SAVE_LATER_PAYMENT_ERROR", error);
+      showMessage("paymentMessage", error.message, "error");
+    } finally {
+      button.disabled = false;
+      button.textContent = "Save Payment";
+    }
+  });
+
+  /* ---------------- START ---------------- */
 
   loadProducts();
 </script>
