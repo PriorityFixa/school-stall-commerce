@@ -1,0 +1,854 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>School Stall | Order Online</title>
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #667085;
+      --brand: #4f46e5;
+      --brand-dark: #3730a3;
+      --surface: #ffffff;
+      --page: #f6f7fb;
+      --line: #e5e7eb;
+      --success: #067647;
+      --danger: #b42318;
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .55; }
+
+    .topbar {
+      background: #111827;
+      color: white;
+      padding: 17px 20px;
+    }
+
+    .topbar-inner, .container {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: -.3px;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      background: #4f46e5;
+      font-size: 22px;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 3px;
+      color: #cbd5e1;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .container { padding: 24px 18px 50px; }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 30px;
+      border-radius: 24px;
+      color: white;
+      background: linear-gradient(125deg, #312e81, #4f46e5 60%, #818cf8);
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 9px;
+      font-size: clamp(27px, 5vw, 42px);
+      letter-spacing: -1.2px;
+    }
+
+    .hero p { margin: 0; color: #e0e7ff; line-height: 1.6; }
+
+    .hero-tag {
+      flex-shrink: 0;
+      padding: 12px 15px;
+      border: 1px solid #ffffff50;
+      border-radius: 15px;
+      background: #ffffff14;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin: 24px 0 18px;
+    }
+
+    .toolbar h2 { margin: 0; font-size: 22px; }
+
+    .search {
+      width: min(340px, 100%);
+      padding: 12px 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+      background: white;
+    }
+
+    .search:focus, .field:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px #4f46e51a;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      align-items: start;
+      gap: 22px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .product {
+      overflow: hidden;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .product-art {
+      display: grid;
+      place-items: center;
+      height: 145px;
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+      color: #4338ca;
+      font-size: 45px;
+      overflow: hidden;
+    }
+
+    .product-art img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+    }
+
+    .product-body { padding: 15px; }
+
+    .product h3 {
+      margin: 0 0 7px;
+      font-size: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .product-desc {
+      min-height: 20px;
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .product-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .price { font-size: 17px; font-weight: 800; }
+    .stock { margin-top: 8px; color: var(--muted); font-size: 12px; }
+
+    .btn {
+      border: 0;
+      border-radius: 11px;
+      padding: 11px 14px;
+      color: white;
+      background: var(--brand);
+      font-weight: 700;
+    }
+
+    .btn:hover:not(:disabled) { background: var(--brand-dark); }
+    .btn-light { background: #eef2ff; color: #3730a3; }
+    .btn-light:hover:not(:disabled) { background: #e0e7ff; }
+    .btn-block { width: 100%; }
+
+    .panel {
+      position: sticky;
+      top: 16px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+    }
+
+    .panel h2 { margin: 0 0 17px; font-size: 20px; }
+
+    .cart-empty {
+      padding: 15px 0 20px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .cart-list {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cart-item-name { font-size: 14px; font-weight: 700; overflow-wrap: anywhere; }
+    .cart-item-sub { margin-top: 4px; color: var(--muted); font-size: 12px; }
+
+    .qty {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 8px;
+    }
+
+    .qty button {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    .remove {
+      margin-top: 5px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--danger);
+      font-size: 12px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 15px 0;
+      border-top: 1px solid var(--line);
+      font-weight: 800;
+    }
+
+    .checkout-fields { display: grid; gap: 12px; }
+    .field-wrap { display: grid; gap: 6px; }
+    .field-wrap label { font-size: 13px; font-weight: 700; }
+
+    .field {
+      width: 100%;
+      min-width: 0;
+      padding: 11px 12px;
+      border: 1px solid #d0d5dd;
+      border-radius: 10px;
+      outline: none;
+      background: white;
+    }
+
+    .hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+    .notice {
+      display: none;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .notice.show { display: block; }
+    .notice.error { color: #912018; background: #fef3f2; }
+    .notice.success { color: #05603a; background: #ecfdf3; }
+    .notice.info { color: #3730a3; background: #eef2ff; }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      padding: 38px 20px;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius);
+      color: var(--muted);
+      text-align: center;
+      background: white;
+    }
+
+    .footer {
+      padding: 22px 15px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .panel { position: static; }
+      .hero { align-items: flex-start; flex-direction: column; padding: 24px; }
+      .hero-tag { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 17px 12px 35px; }
+      .products { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .product-art { height: 110px; font-size: 34px; }
+      .product-body { padding: 11px; }
+      .product h3 { font-size: 14px; }
+      .product-desc { font-size: 12px; }
+      .product-bottom { align-items: flex-start; flex-direction: column; }
+      .product-bottom .btn { width: 100%; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner brand">
+      <div class="brand-icon" aria-hidden="true">🛍️</div>
+      <div>
+        School Stall
+        <small>Student shop · Order online</small>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1>What would you like today?</h1>
+        <p>Browse the stall, add your items to the cart, and place your order in a few steps.</p>
+      </div>
+      <div class="hero-tag">Simple · Convenient · School-ready</div>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite"></div>
+
+    <div class="toolbar">
+      <h2>Shop products</h2>
+      <input id="search" class="search" type="search"
+        placeholder="Search products…" aria-label="Search products">
+    </div>
+
+    <div class="layout">
+      <section>
+        <div id="product-status" class="hint" style="margin-bottom:12px">
+          Loading products…
+        </div>
+        <div id="products" class="products" aria-live="polite"></div>
+      </section>
+
+      <aside class="panel" aria-label="Shopping cart and checkout">
+        <h2>Your cart <span id="cart-count" class="hint">(0 items)</span></h2>
+        <div id="cart-list" class="cart-list"></div>
+        <div id="cart-empty" class="cart-empty">Your cart is empty. Add a product to get started.</div>
+
+        <div class="total-row">
+          <span>Total</span>
+          <span id="cart-total">KSh 0</span>
+        </div>
+
+        <form id="checkout-form" class="checkout-fields">
+          <div class="field-wrap">
+            <label for="customer-name">Your name *</label>
+            <input id="customer-name" class="field" name="customerName"
+              maxlength="80" autocomplete="name" required
+              placeholder="Enter your name">
+          </div>
+
+          <div class="field-wrap">
+            <label for="customer-class">Class *</label>
+            <input id="customer-class" class="field" name="customerClass"
+              maxlength="40" required placeholder="e.g. Grade 8 East">
+          </div>
+
+          <div class="field-wrap">
+            <label for="fulfilment">How would you like to receive your order? *</label>
+            <select id="fulfilment" class="field" name="fulfilment" required>
+              <option value="collection">Collect from the school stall</option>
+              <option value="classroom">Classroom delivery</option>
+            </select>
+          </div>
+
+          <div class="field-wrap">
+            <label for="payment-method">Payment method *</label>
+            <select id="payment-method" class="field" name="paymentMethod" required>
+              <option value="collection_cash">Cash on collection</option>
+              <option value="mpesa">M-Pesa</option>
+            </select>
+          </div>
+
+          <p id="payment-hint" class="hint">
+            Cash on collection: pay the stall when you receive your order.
+          </p>
+
+          <button id="place-order" class="btn btn-block" type="submit">
+            Place order
+          </button>
+          <p class="hint">
+            Check your items and class before submitting. Do not enter your M-Pesa PIN on this page.
+          </p>
+        </form>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    School Stall Commerce · Customer ordering page
+  </footer>
+
+  <script>
+    "use strict";
+
+    const API_BASE = "https://school-stall-commerce.priorityfixa.workers.dev";
+    const PRODUCTS_URL = API_BASE + "/api/products";
+    const ORDERS_URL = API_BASE + "/api/orders";
+
+    const state = {
+      products: [],
+      cart: new Map(),
+      loadingProducts: false,
+      submitting: false
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (character) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
+    }
+
+    function money(value) {
+      const amount = Number(value);
+      return "KSh " + (Number.isFinite(amount) ? amount : 0).toLocaleString("en-KE", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function showNotice(message, type = "info") {
+      const notice = $("notice");
+      notice.textContent = message;
+      notice.className = "notice show " + type;
+      notice.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function clearNotice() {
+      $("notice").className = "notice";
+      $("notice").textContent = "";
+    }
+
+    function getProductId(product) {
+      return String(product.id ?? product.productId ?? product._id ?? "");
+    }
+
+    function getProductName(product) {
+      return String(product.name ?? product.productName ?? product.title ?? "Unnamed product");
+    }
+
+    function getProductPrice(product) {
+      return Number(product.sellingPrice ?? product.price ?? 0);
+    }
+
+    function getProductStock(product) {
+      return Number(product.stockQuantity ?? product.stock ?? product.quantityAvailable ?? 0);
+    }
+
+    function getProductDescription(product) {
+      return String(product.description ?? product.details ?? "");
+    }
+
+    function getProductImage(product) {
+      return String(product.imageUrl ?? product.image ?? product.imageURL ?? "");
+    }
+
+    function isProductActive(product) {
+      return product.active !== false && product.isActive !== false &&
+        String(product.status ?? "active").toLowerCase() !== "inactive";
+    }
+
+    function unwrapProducts(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (Array.isArray(payload.products)) return payload.products;
+      if (Array.isArray(payload.data)) return payload.data;
+      if (payload.data && Array.isArray(payload.data.products)) return payload.data.products;
+      return [];
+    }
+
+    async function fetchProducts() {
+      if (state.loadingProducts) return;
+      state.loadingProducts = true;
+      $("product-status").textContent = "Loading products…";
+
+      try {
+        const response = await fetch(PRODUCTS_URL, {
+          method: "GET",
+          headers: { "Accept": "application/json" },
+          cache: "no-store"
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload.success === false) {
+          throw new Error(payload.message || payload.error || "Could not load products.");
+        }
+
+        state.products = unwrapProducts(payload).filter((product) => {
+          const id = getProductId(product);
+          return id && isProductActive(product) &&
+            Number.isFinite(getProductPrice(product)) &&
+            getProductPrice(product) >= 0;
+        });
+
+        // Remove cart items that no longer exist, and cap quantities to current stock.
+        for (const [id, item] of state.cart.entries()) {
+          const fresh = state.products.find((product) => getProductId(product) === id);
+          if (!fresh || getProductStock(fresh) <= 0) {
+            state.cart.delete(id);
+          } else {
+            item.quantity = Math.min(item.quantity, getProductStock(fresh));
+          }
+        }
+
+        renderProducts();
+        renderCart();
+        $("product-status").textContent = state.products.length
+          ? state.products.filter((product) => getProductStock(product) > 0).length + " products available"
+          : "No products are available right now.";
+      } catch (error) {
+        $("product-status").textContent = "Products could not be loaded.";
+        $("products").innerHTML =
+          '<div class="empty-state"><strong>We could not load the products.</strong><p>Please check your internet connection and try again.</p><button class="btn" id="retry-products" type="button">Try again</button></div>';
+        $("retry-products")?.addEventListener("click", fetchProducts);
+        showNotice(error.message || "Unable to connect to the shop. Please try again.", "error");
+      } finally {
+        state.loadingProducts = false;
+      }
+    }
+
+    function renderProducts() {
+      const search = $("search").value.trim().toLowerCase();
+      const visible = state.products.filter((product) => {
+        const name = getProductName(product).toLowerCase();
+        const description = getProductDescription(product).toLowerCase();
+        return (name.includes(search) || description.includes(search)) &&
+          getProductStock(product) > 0;
+      });
+
+      if (!visible.length) {
+        $("products").innerHTML =
+          '<div class="empty-state">No matching products are in stock. Try another search.</div>';
+        return;
+      }
+
+      $("products").innerHTML = visible.map((product) => {
+        const id = getProductId(product);
+        const name = getProductName(product);
+        const description = getProductDescription(product);
+        const image = getProductImage(product);
+        const stock = getProductStock(product);
+        const price = getProductPrice(product);
+        const art = image
+          ? '<img src="' + escapeHTML(image) + '" alt="' + escapeHTML(name) +
+            '" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.textContent=\'🛍️\'">'
+          : "🛍️";
+
+        return `
+          <article class="product">
+            <div class="product-art">${art}</div>
+            <div class="product-body">
+              <h3>${escapeHTML(name)}</h3>
+              <p class="product-desc">${escapeHTML(description || "Available from the school stall.")}</p>
+              <div class="product-bottom">
+                <span class="price">${money(price)}</span>
+                <button class="btn btn-light add-btn" type="button"
+                  data-product-id="${escapeHTML(id)}"
+                  ${stock <= 0 ? "disabled" : ""}>Add to cart</button>
+              </div>
+              <div class="stock">${stock} in stock</div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      $("products").querySelectorAll(".add-btn").forEach((button) => {
+        button.addEventListener("click", () => addToCart(button.dataset.productId));
+      });
+    }
+
+    function addToCart(id) {
+      clearNotice();
+      const product = state.products.find((item) => getProductId(item) === id);
+      if (!product) return showNotice("That product is no longer available.", "error");
+
+      const stock = getProductStock(product);
+      const current = state.cart.get(id);
+      const nextQuantity = (current?.quantity || 0) + 1;
+
+      if (nextQuantity > stock) {
+        return showNotice("Only " + stock + " unit(s) of " + getProductName(product) + " are in stock.", "error");
+      }
+
+      state.cart.set(id, { product, quantity: nextQuantity });
+      renderCart();
+      showNotice(getProductName(product) + " added to your cart.", "success");
+    }
+
+    function changeQuantity(id, delta) {
+      const item = state.cart.get(id);
+      if (!item) return;
+
+      const stock = getProductStock(item.product);
+      const next = item.quantity + delta;
+
+      if (next <= 0) {
+        state.cart.delete(id);
+      } else if (next > stock) {
+        showNotice("Only " + stock + " unit(s) are currently available.", "error");
+      } else {
+        item.quantity = next;
+      }
+
+      renderCart();
+    }
+
+    function renderCart() {
+      const entries = [...state.cart.entries()];
+      const count = entries.reduce((sum, [, item]) => sum + item.quantity, 0);
+      const total = entries.reduce((sum, [, item]) =>
+        sum + getProductPrice(item.product) * item.quantity, 0);
+
+      $("cart-count").textContent = "(" + count + " item" + (count === 1 ? "" : "s") + ")";
+      $("cart-total").textContent = money(total);
+      $("cart-empty").style.display = entries.length ? "none" : "block";
+      $("cart-list").innerHTML = entries.map(([id, item]) => {
+        const name = getProductName(item.product);
+        const price = getProductPrice(item.product);
+        return `
+          <div class="cart-item">
+            <div>
+              <div class="cart-item-name">${escapeHTML(name)}</div>
+              <div class="cart-item-sub">${money(price)} each</div>
+              <div class="qty">
+                <button type="button" aria-label="Decrease ${escapeHTML(name)} quantity"
+                  data-action="decrease" data-id="${escapeHTML(id)}">−</button>
+                <span>${item.quantity}</span>
+                <button type="button" aria-label="Increase ${escapeHTML(name)} quantity"
+                  data-action="increase" data-id="${escapeHTML(id)}">+</button>
+              </div>
+              <button class="remove" type="button" data-action="remove"
+                data-id="${escapeHTML(id)}">Remove</button>
+            </div>
+            <strong>${money(price * item.quantity)}</strong>
+          </div>
+        `;
+      }).join("");
+
+      $("cart-list").querySelectorAll("button[data-action]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const id = button.dataset.id;
+          const action = button.dataset.action;
+          if (action === "increase") changeQuantity(id, 1);
+          if (action === "decrease") changeQuantity(id, -1);
+          if (action === "remove") {
+            state.cart.delete(id);
+            renderCart();
+          }
+        });
+      });
+
+      $("place-order").disabled = state.submitting || !entries.length;
+      $("place-order").textContent = state.submitting ? "Submitting order…" : "Place order";
+    }
+
+    $("search").addEventListener("input", renderProducts);
+
+    $("payment-method").addEventListener("change", () => {
+      $("payment-hint").textContent = $("payment-method").value === "mpesa"
+        ? "M-Pesa selected. This page does not request your PIN or verify payment. Follow the stall's payment instructions after ordering."
+        : "Cash on collection: pay the stall when you receive your order.";
+    });
+
+    async function refreshAndValidateCart() {
+      const response = await fetch(PRODUCTS_URL, {
+        method: "GET",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload.success === false) {
+        throw new Error("We could not verify current stock. Please try again.");
+      }
+
+      const freshProducts = unwrapProducts(payload);
+      const verifiedItems = [];
+
+      for (const [id, item] of state.cart.entries()) {
+        const product = freshProducts.find((candidate) =>
+          getProductId(candidate) === id && isProductActive(candidate)
+        );
+
+        if (!product) {
+          throw new Error(getProductName(item.product) + " is no longer available. Please update your cart.");
+        }
+
+        const stock = getProductStock(product);
+        const price = getProductPrice(product);
+
+        if (!Number.isFinite(stock) || stock < item.quantity) {
+          throw new Error("There are only " + Math.max(0, stock || 0) +
+            " unit(s) of " + getProductName(product) + " available. Please update your cart.");
+        }
+
+        if (!Number.isFinite(price) || price < 0) {
+          throw new Error("The price for " + getProductName(product) + " is invalid. Please contact the stall.");
+        }
+
+        verifiedItems.push({
+          productId: id,
+          productName: getProductName(product),
+          quantity: item.quantity,
+          unitPrice: price,
+          lineTotal: price * item.quantity,
+          costPrice: Number(product.costPrice ?? 0)
+        });
+      }
+
+      return verifiedItems;
+    }
+
+    $("checkout-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (state.submitting) return;
+      clearNotice();
+
+      const name = $("customer-name").value.trim();
+      const className = $("customer-class").value.trim();
+      const fulfilment = $("fulfilment").value;
+      const selectedPayment = $("payment-method").value;
+
+      if (!name || !className) {
+        return showNotice("Please enter your name and class.", "error");
+      }
+
+      if (!state.cart.size) {
+        return showNotice("Your cart is empty. Add a product before placing an order.", "error");
+      }
+
+      state.submitting = true;
+      renderCart();
+
+      try {
+        const items = await refreshAndValidateCart();
+        const total = items.reduce((sum, item) => sum + item.lineTotal, 0);
+
+        // Current Worker supports "credit", "cash", and "mpesa".
+        // "credit" keeps cash-on-collection orders unpaid until collected.
+        const paymentMethod = selectedPayment === "collection_cash" ? "credit" : "mpesa";
+
+        // Keep class and fulfilment visible in existing orders, because the current
+        // Worker may not yet save separate customerClass/fulfilment fields.
+        const fulfilmentLabel = fulfilment === "classroom"
+          ? "Classroom delivery" : "Collect at stall";
+        const savedCustomerName = name + " | Class: " + className + " | " + fulfilmentLabel;
+
+        const orderPayload = {
+          sellerName: "Online Customer",
+          customerName: savedCustomerName,
+          customerPhone: "",
+          customerClass: className,
+          fulfilmentMethod: fulfilment,
+          paymentMethod,
+          items: items.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity
+          })),
+          currency: "KES",
+          customerSource: "customer_page"
+        };
+
+        const response = await fetch(ORDERS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(orderPayload)
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok || result.success === false || result.error) {
+          throw new Error(result.message || result.error || "The order could not be placed. Please check your cart and try again.");
+        }
+
+        const order = result.order ?? result.data?.order ?? result.data ?? result;
+        const orderId = order.id ?? order.orderId ?? result.orderId ?? "Submitted";
+        const paymentMessage = selectedPayment === "mpesa"
+          ? "M-Pesa was selected. This page has not verified payment; follow the stall's payment instructions."
+          : "Please pay cash when collecting your order or receiving it in class.";
+
+        state.cart.clear();
+        renderCart();
+        $("checkout-form").reset();
+        $("payment-hint").textContent = "Cash on collection: pay the stall when you receive your order.";
+        renderProducts();
+
+        showNotice(
+          "Order submitted successfully. Order reference: " + orderId +
+          ". Total: " + money(total) + ". Fulfilment: " + fulfilmentLabel +
+          ". " + paymentMessage,
+          "success"
+        );
+      } catch (error) {
+        showNotice(error.message || "Something went wrong. Please try again.", "error");
+      } finally {
+        state.submitting = false;
+        renderCart();
+      }
+    });
+
+    fetchProducts();
+  </script>
+</body>
+</html>
