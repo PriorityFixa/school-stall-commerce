@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -228,6 +227,10 @@
     "use strict";
 
     const API = "https://school-stall-commerce.priorityfixa.workers.dev";
+
+    // Public list: contains only id, name, price and stock (no costs).
+    const PRODUCTS_URL = API + "/api/products/public";
+
     const state = {
       products: [],
       cart: new Map(),
@@ -250,10 +253,12 @@
       });
     }
 
-    function notice(message, type = "info") {
+    // Scrolling is only used for errors and the final confirmation, so
+    // adding items to the cart does not make the page jump on mobile.
+    function notice(message, type = "info", scroll = false) {
       $("notice").textContent = message;
       $("notice").className = "notice show " + type;
-      $("notice").scrollIntoView({behavior:"smooth", block:"nearest"});
+      if (scroll) $("notice").scrollIntoView({behavior:"smooth", block:"nearest"});
     }
 
     function clearNotice() {
@@ -287,7 +292,7 @@
       $("product-status").textContent = "Loading products…";
 
       try {
-        const response = await fetch(API + "/api/products", {
+        const response = await fetch(PRODUCTS_URL, {
           headers: {Accept:"application/json"},
           cache: "no-store"
         });
@@ -324,7 +329,7 @@
           '<div class="empty-state">Unable to load products. Check your connection and try again.' +
           '<p><button class="btn" id="retry" type="button">Try again</button></p></div>';
         $("retry")?.addEventListener("click", loadProducts);
-        notice(err.message || "Could not connect to the shop.", "error");
+        notice(err.message || "Could not connect to the shop.", "error", true);
       } finally {
         state.loading = false;
       }
@@ -373,12 +378,12 @@
     function addToCart(id) {
       clearNotice();
       const product = state.products.find(p => idOf(p) === id);
-      if (!product) return notice("That product is no longer available.", "error");
+      if (!product) return notice("That product is no longer available.", "error", true);
 
       const item = state.cart.get(id);
       const next = (item?.quantity || 0) + 1;
       if (next > stockOf(product)) {
-        return notice("Only " + stockOf(product) + " unit(s) are available.", "error");
+        return notice("Only " + stockOf(product) + " unit(s) are available.", "error", true);
       }
 
       state.cart.set(id, {product, quantity:next});
@@ -393,7 +398,7 @@
       const next = item.quantity + delta;
       if (next <= 0) state.cart.delete(id);
       else if (next > stockOf(item.product)) {
-        notice("Only " + stockOf(item.product) + " unit(s) are available.", "error");
+        notice("Only " + stockOf(item.product) + " unit(s) are available.", "error", true);
       } else item.quantity = next;
 
       renderCart();
@@ -444,12 +449,12 @@
 
     $("payment-method").addEventListener("change", () => {
       $("payment-hint").textContent = $("payment-method").value === "mpesa"
-        ? "M-Pesa selected. The current API may not initiate an STK Push; follow the stall's payment instructions. Payment must be confirmed separately."
-        : "Cash selected. Please hand the cash to the stall when placing your order and ask the seller to record the payment.";
+        ? "M-Pesa selected. Follow the stall's payment instructions. Payment must be confirmed by the stall separately."
+        : "Cash selected. Please hand the cash to the stall and ask the seller to record the payment.";
     });
 
     async function validateCartWithServer() {
-      const response = await fetch(API + "/api/products", {
+      const response = await fetch(PRODUCTS_URL, {
         headers: {Accept:"application/json"},
         cache: "no-store"
       });
@@ -499,15 +504,15 @@
       const method = $("payment-method").value;
 
       if (!name || !className) {
-        return notice("Please enter your name and class.", "error");
+        return notice("Please enter your name and class.", "error", true);
       }
 
       if (!state.cart.size) {
-        return notice("Your cart is empty. Add products before ordering.", "error");
+        return notice("Your cart is empty. Add products before ordering.", "error", true);
       }
 
       if (method === "mpesa" && !phone) {
-        return notice("Please enter your phone number for M-Pesa payment instructions.", "error");
+        return notice("Please enter your phone number for M-Pesa payment instructions.", "error", true);
       }
 
       state.submitting = true;
@@ -515,18 +520,17 @@
 
       try {
         const items = await validateCartWithServer();
-        const deliveryText = fulfilment === "classroom"
-          ? "Classroom delivery" : "Collection at stall";
 
-        // The existing Worker accepts cash, mpesa and credit.
-        // Use credit for cash orders so selecting cash does not falsely
-        // mark the order paid. Seller records cash when actually received.
+        // Online orders can never be marked paid by this page.
+        // The Worker rejects "cash" without a seller PIN, so cash orders are
+        // sent as "credit" (unpaid). The seller records the cash when received.
         const apiPaymentMethod = method === "cash" ? "credit" : "mpesa";
 
         const payload = {
-          sellerName: "Online Customer",
-          customerName: name + " | Class: " + className + " | " + deliveryText,
+          customerName: name,
+          customerClass: className,
           customerPhone: phone,
+          fulfilment: fulfilment,
           paymentMethod: apiPaymentMethod,
           items: items
         };
@@ -558,19 +562,19 @@
           notice(
             "Order submitted. Reference: " + orderId +
             ". M-Pesa payment has NOT been verified by this page. Follow the stall's payment instructions and wait for confirmation.",
-            "success"
+            "success", true
           );
         } else {
           notice(
             "Order submitted. Reference: " + orderId +
-            ". Please pay cash to the stall when placing the order and ask the seller to record receipt. The order is not marked paid by this page.",
-            "success"
+            ". Please pay cash to the stall and ask the seller to record receipt. The order is not marked paid by this page.",
+            "success", true
           );
         }
 
         await loadProducts();
       } catch (err) {
-        notice(err.message || "Could not submit your order. Please try again.", "error");
+        notice(err.message || "Could not submit your order. Please try again.", "error", true);
       } finally {
         state.submitting = false;
         renderCart();
