@@ -271,7 +271,12 @@
     function priceOf(p) { return Number(p.sellingPrice ?? p.price ?? 0); }
     function stockOf(p) { return Number(p.stockQuantity ?? p.stock ?? p.quantityAvailable ?? 0); }
     function descOf(p) { return String(p.description ?? p.details ?? "Available from the school stall."); }
-    function imageOf(p) { return String(p.imageUrl ?? p.image ?? p.imageURL ?? ""); }
+    // File names are loaded from frontend/images/; full links are used as-is.
+    function imageOf(p) {
+      const url = String(p.imageUrl ?? p.image ?? p.imageURL ?? "").trim();
+      if (!url) return "";
+      return /^https?:\/\//i.test(url) ? url : "images/" + url;
+    }
 
     function active(p) {
       return p.active !== false && p.isActive !== false &&
