@@ -101,6 +101,12 @@
           <input id="name" type="text" maxlength="120" placeholder="e.g. Samosa" required>
         </div>
 
+        <div class="full">
+          <label for="imageUrl">Picture (optional)</label>
+          <input id="imageUrl" type="text" maxlength="500"
+            placeholder="samosa.jpg (file in frontend/images) or https://...">
+        </div>
+
         <div>
           <label for="sellingPrice">Selling Price (KES)</label>
           <input id="sellingPrice" type="number" min="0.01" step="0.01" placeholder="50" required>
@@ -168,6 +174,12 @@ function money(amount) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
+}
+
+// File names are looked up in frontend/images/; full links are used as-is.
+function imageSrc(url) {
+  if (!url) return "";
+  return /^https?:\/\//i.test(url) ? url : "../images/" + url;
 }
 
 function escapeHtml(value) {
@@ -247,7 +259,12 @@ function renderProducts() {
 
     return `
       <tr class="${active ? "" : "inactive"}">
-        <td><strong>${escapeHtml(product.name)}</strong></td>
+        <td>
+          ${product.imageUrl ? `<img src="${escapeHtml(imageSrc(product.imageUrl))}" alt=""
+            style="width:36px;height:36px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:8px"
+            onerror="this.style.display='none'">` : ""}
+          <strong>${escapeHtml(product.name)}</strong>
+        </td>
         <td>${money(product.sellingPrice)}</td>
         <td>${money(product.costPrice)}</td>
         <td><strong>${stock}</strong></td>
@@ -298,7 +315,10 @@ document.getElementById("productForm").addEventListener("submit", async event =>
   try {
     await api("/api/products", {
       method: "POST",
-      body: JSON.stringify({ name, sellingPrice, costPrice, openingStock, reorderLevel })
+      body: JSON.stringify({
+        name, sellingPrice, costPrice, openingStock, reorderLevel,
+        imageUrl: document.getElementById("imageUrl").value.trim()
+      })
     });
 
     showMessage("Product added successfully.");
@@ -335,6 +355,12 @@ async function editProduct(productId) {
   const newReorder = prompt("Reorder level:", product.reorderLevel ?? 0);
   if (newReorder === null) return;
 
+  const newImage = prompt(
+    "Picture file name (in frontend/images) or https:// link. Leave blank for none:",
+    product.imageUrl || ""
+  );
+  if (newImage === null) return;
+
   try {
     await api("/api/products/" + encodeURIComponent(productId), {
       method: "PUT",
@@ -342,7 +368,8 @@ async function editProduct(productId) {
         name: newName.trim(),
         sellingPrice: Number(newPrice),
         costPrice: Number(newCost),
-        reorderLevel: Number(newReorder)
+        reorderLevel: Number(newReorder),
+        imageUrl: newImage.trim()
       })
     });
 
