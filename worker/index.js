@@ -549,6 +549,7 @@ async function getPublicProducts(env) {
     .map(product => ({
       id: product.id,
       name: product.name,
+      imageUrl: product.imageUrl || "",
       sellingPrice: product.sellingPrice,
       stockQuantity: product.stockQuantity,
       active: true
@@ -566,6 +567,15 @@ async function getProducts(env) {
   );
 
   return json({ success: true, products, count: products.length });
+}
+
+// Accepts an https:// link or a simple file name such as samosa.jpg
+function cleanImageUrl(value) {
+  const url = String(value || "").trim().slice(0, 500);
+  if (!url) return "";
+  if (/^https:\/\/\S+$/i.test(url)) return url;
+  if (/^[A-Za-z0-9_\-][A-Za-z0-9_\-./]*$/.test(url) && !url.includes("..")) return url;
+  return null;
 }
 
 async function createProduct(request, env) {
@@ -595,12 +605,21 @@ async function createProduct(request, env) {
     return errorResponse("Reorder level must be a non-negative whole number");
   }
 
+  const imageUrl = cleanImageUrl(body.imageUrl);
+
+  if (imageUrl === null) {
+    return errorResponse(
+      "Picture must be an https:// link or a file name such as samosa.jpg"
+    );
+  }
+
   const id = createId("PROD");
   const now = new Date().toISOString();
 
   const product = {
     id,
     name,
+    imageUrl,
     sellingPrice,
     costPrice,
     stockQuantity: openingStock,
@@ -669,6 +688,18 @@ async function updateProduct(productId, request, env) {
       return errorResponse("Invalid reorder level");
     }
     product.reorderLevel = level;
+  }
+
+  if (body.imageUrl !== undefined) {
+    const imageUrl = cleanImageUrl(body.imageUrl);
+
+    if (imageUrl === null) {
+      return errorResponse(
+        "Picture must be an https:// link or a file name such as samosa.jpg"
+      );
+    }
+
+    product.imageUrl = imageUrl;
   }
 
   if (body.active !== undefined) {
